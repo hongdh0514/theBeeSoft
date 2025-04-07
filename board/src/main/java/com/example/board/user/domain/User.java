@@ -1,4 +1,4 @@
-package com.example.board.domain;
+package com.example.board.user.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -11,15 +11,11 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @Entity
-public class Board {
+@Table(name = "USERS")
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; 
+    private Long userId; 
 
-    private String title; 
-    private String content;
-    private String writer;
-
-    @Column(updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private String userNm; 
 }

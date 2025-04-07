@@ -1,7 +1,7 @@
-package com.example.board.service;
+package com.example.board.board.service;
 
-import com.example.board.repository.BoardRepository;
-import com.example.board.domain.Board;
+import com.example.board.board.repository.BoardRepository;
+import com.example.board.board.domain.Board;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Autowired;

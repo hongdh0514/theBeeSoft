@@ -1,6 +1,6 @@
-package com.example.board.repository;
+package com.example.board.board.repository;
 
-import com.example.board.domain.Board;
+import com.example.board.board.domain.Board;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
