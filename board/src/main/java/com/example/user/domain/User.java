@@ -1,4 +1,4 @@
-package com.example.board.domain;
+package com.example.user.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -9,10 +9,11 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
+@Table(name = "USERS")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId; 
-    
-	private String userNm;
+
+    private String userNm; 
 }
