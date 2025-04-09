@@ -1,0 +1,8 @@
+.title-container {
+  display: flex;            
+  justify-content: space-between;
+}
+
+.loginBtn {
+	font-size: 16pt;
+}

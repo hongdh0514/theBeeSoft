@@ -1,0 +1,17 @@
+[
+  {
+    "userId": "qwer",
+    "userPw": "1234",
+    "userAuth": "admin"
+  },
+  {
+    "userId": "asdf",
+    "userPw": "1234",
+    "userAuth": "admin"
+  },
+  {
+    "userId": "zxcv",
+    "userPw": "1234",
+    "userAuth": "admin"
+  }
+]

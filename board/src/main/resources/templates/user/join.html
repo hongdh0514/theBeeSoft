@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>회원가입</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/user.css}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body class="container mt-4">
+    <div class="test">
+        <h2>회원가입</h2>
+    </div>
+    <div class="loginForm">
+        <div class="loginBox">
+            <div class="mb-3 loginInput">
+                <div class="loginText">아이디 :</div>
+                <input type="text" id="joinId" class="form-control" autocomplete="off">
+            </div>
+            <div class="mb-3" id="checkPw" style="margin-top: 15px; border: 1px solid #ccc; padding: 10px; display: none; color: red; font-weight: bold; text-align: center;"></div>
+            <div class="mb-3 loginInput">
+                <div class="loginText">비밀번호 : </div>
+                <input type="password" id="joinPw" class="form-control" autocomplete="off">
+            </div>
+            <div class="mb-3 loginInput">
+                <div class="loginText">비밀번호 확인 : </div>
+                <input type="password" id="joinRePw" class="form-control" autocomplete="off">
+            </div>
+        </div>
+    </div>
+    <div class="loginBtn">
+        <button id="joinBtn" class="btn btn-success">확인</button>
+        <a href="/" class="btn btn-primary">취소</a>
+    </div>
+    <div style="display: flex; justify-content: center;">
+        <div class="mb-3" id="responseArea" style="margin-top: 15px; padding: 10px; display: none; color: red; font-weight: bold; text-align: center;"></div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            console.log("jQuery 로드 완료, DOM 준비됨");
+
+            $("#joinBtn").click(function() {
+                console.log("회원가입 버튼 클릭됨");
+
+                var joinId = $("#joinId").val();
+                var joinPw = $("#joinPw").val();
+                var joinRePw = $("#joinRePw").val();
+
+                if (!joinId || !joinPw || !joinRePw) {
+                    $("#responseArea").text("모든 값을 입력하세요.").css({"display": "block", "color": "red"});
+                    console.log("빈 값 감지됨");
+                    return;
+                }
+
+                if (joinPw !== joinRePw) {
+                    $("#checkPw").text("비밀번호가 일치하지 않습니다.").css({"display": "block", "color": "red"});
+                    console.log("비밀번호 불일치");
+                    return;
+                }
+
+                $("#checkPw").text("비밀번호가 일치합니다.").css({"display": "block", "color": "green"});
+                console.log("비밀번호 일치");
+                
+                responseArea.textContent = '서버에 데이터를 전송 중...';
+                responseArea.style.display = 'block';
+
+                var user = {
+                	userId: joinId,
+                	userPw: joinPw
+                };
+
+                console.log("AJAX 요청 시작:", user);
+
+                $.ajax({
+                    type: "POST",
+                    url: "/api/user/join",
+                    contentType: "application/json",
+                    data: JSON.stringify(user),
+                    success: function(response) {
+                        console.log("AJAX 성공, 응답:", response);
+                        if (response === "success") {
+                            alert("회원가입이 성공적으로 완료되었습니다!");
+                            $("#responseArea").css("display", "none");
+                            window.location.href = "/board";
+                        } else {
+                            $("#responseArea").text("이미 존재하는 아이디입니다.").css({"display": "block", "color": "red"});
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("AJAX 오류 - 상태:", status, "에러:", error, "응답:", xhr.responseText);
+                        $("#responseArea").text("서버 오류: " + xhr.responseText).css({"display": "block", "color": "red"});
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
