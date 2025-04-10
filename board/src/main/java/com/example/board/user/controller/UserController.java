@@ -24,10 +24,10 @@ public class UserController {
         String userId = user.getUserId();
         String userPw = user.getUserPw();
 
-        System.out.println("login request id : " + userId);
+        System.out.println("[Controller] login request id : " + userId);
 
         if (userId == null || userId.trim().isEmpty() || userPw == null || userPw.trim().isEmpty()) {
-            System.out.println("login fail : id pr pw empty");
+            System.out.println("[Controller] login fail : id pr pw empty");
             return "failure";
         }
 
@@ -37,10 +37,10 @@ public class UserController {
             User loginUser = loginResult.get();
             session.setAttribute("loginUser", loginUser);
             session.setMaxInactiveInterval(1800);
-            System.out.println("login success id : " + loginUser.getUserId() + ", Session ID: " + session.getId());
+            System.out.println("[Controller] login success id : " + loginUser.getUserId());
             return "success";
         } else {
-            System.out.println("login fail id : " + userId);
+            System.out.println("[Controller] login fail");
             return "failure";
         }
     }
@@ -49,14 +49,14 @@ public class UserController {
     @ResponseBody
     public String register(@RequestBody User user, HttpSession session) {
     	
-        System.out.println("join request id : " + user.getUserId());
+        System.out.println("[Controller] join request id : " + user.getUserId());
         
         if (userService.registerUser(user)) {
             session.setAttribute("loginUser", user);
-            System.out.println("join success id : " + user.getUserId());
+            System.out.println("[Controller] join success id : " + user.getUserId());
             return "success";
         } else {
-            System.out.println("join success id (duplication) " + user.getUserId());
+            System.out.println("[Controller] join fail id (duplication) " + user.getUserId());
             return "failure";
         }
     }

@@ -32,12 +32,12 @@ public class UserService {
 	public boolean registerUser(User user) {
         // 중복 ID 체크
         if (userRepository.findByUserId(user.getUserId()).isPresent()) {
-            System.out.println("중복된 ID: " + user.getUserId());
+            System.out.println("[Service] join fail id (duplication) " + user.getUserId());
             return false;
         }
 
         // 디버깅 출력 (필드별로 명시적 출력)
-        System.out.println("회원가입 시도 - userId: " + user.getUserId() + 
+        System.out.println("[Service] join request - userId: " + user.getUserId() +
                           ", userPw: " + user.getUserPw() + 
                           ", userAuth: " + user.getUserAuth());
         // 기본 권한 설정
@@ -45,7 +45,7 @@ public class UserService {
         // 사용자 저장
         userRepository.save(user);
 
-        System.out.println("회원가입 성공 - userId: " + user.getUserId());
+        System.out.println("[Service] join success - userId: " + user.getUserId());
         return true;
     }
 }
