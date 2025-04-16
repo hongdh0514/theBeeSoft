@@ -1,17 +1,18 @@
 [
   {
     "userId": "qwer",
-    "userPw": "1234",
-    "userAuth": "admin"
+    "userPw": "1234"
   },
   {
     "userId": "asdf",
-    "userPw": "1234",
-    "userAuth": "admin"
+    "userPw": "1234"
   },
   {
     "userId": "zxcv",
-    "userPw": "1234",
-    "userAuth": "admin"
+    "userPw": "1234"
+  },
+  {
+    "userId": "admin",
+    "userPw": "1234"
   }
 ]

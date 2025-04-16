@@ -21,24 +21,37 @@ public class UserController {
     @PostMapping("/login")
     @ResponseBody
     public String login(@RequestBody User user, HttpSession session) {
+
         String userId = user.getUserId();
         String userPw = user.getUserPw();
 
         System.out.println("[Controller] login request id : " + userId);
 
         if (userId == null || userId.trim().isEmpty() || userPw == null || userPw.trim().isEmpty()) {
-            System.out.println("[Controller] login fail : id pr pw empty");
+            System.out.println("[Controller] login fail : id or pw empty");
             return "failure";
         }
 
-        Optional<User> loginResult = userService.login(userId, userPw);
+        Optional<User> loginResult = userService.findUser(userId, userPw);
 
         if (loginResult.isPresent()) {
             User loginUser = loginResult.get();
+//            if (loginCheck(session)) {
+//                returnMsg = "failure_login_session";
+//            }
+            String returnMsg = "";
+            if (loginCheck(session)) {
+                session.removeAttribute("loginUser");
+                returnMsg = "success_session_off";
+            }
+            else {
+                returnMsg = "success";
+            }
+
             session.setAttribute("loginUser", loginUser);
-            session.setMaxInactiveInterval(1800);
             System.out.println("[Controller] login success id : " + loginUser.getUserId());
-            return "success";
+
+            return returnMsg;
         } else {
             System.out.println("[Controller] login fail");
             return "failure";
@@ -47,17 +60,39 @@ public class UserController {
     
     @PostMapping("/join")
     @ResponseBody
-    public String register(@RequestBody User user, HttpSession session) {
-    	
+    public String join(@RequestBody User user, HttpSession session) {
+
         System.out.println("[Controller] join request id : " + user.getUserId());
         
-        if (userService.registerUser(user)) {
+        if (userService.saveUser(user)) {
+//            if (loginCheck(session)) {
+//                return "failure_login_session";
+//            }
+
+            String returnMsg = "";
+            if (loginCheck(session)) {
+                session.removeAttribute("loginUser");
+                returnMsg = "success_session_off";
+            }
+            else {
+                returnMsg = "success";
+            }
+
             session.setAttribute("loginUser", user);
             System.out.println("[Controller] join success id : " + user.getUserId());
-            return "success";
+
+            return returnMsg;
         } else {
             System.out.println("[Controller] join fail id (duplication) " + user.getUserId());
             return "failure";
         }
+    }
+
+    public boolean loginCheck(HttpSession session){
+        if (session.getAttribute("loginUser") != null) {
+            System.out.println("[Controller] already login session");
+            return true;
+        }
+        return false;
     }
 }

@@ -6,3 +6,7 @@
 .loginBtn {
 	font-size: 16pt;
 }
+
+.titleBtn {
+    cursor: pointer;
+}

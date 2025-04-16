@@ -9,7 +9,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig implements WebMvcConfigurer {
 
     @Autowired
-    private LoginCheckInterceptor loginCheckInterceptor; // 위에서 만든 인터셉터 주입
+    private LoginCheckInterceptor loginCheckInterceptor;
+
+//    @Autowired
+//    private BoardInterceptor boardInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -28,6 +31,17 @@ public class WebConfig implements WebMvcConfigurer {
                         "/user/join",
                         "/user/join/**", // 회원가입 페이지 등 로그인 없이 접근 가능해야 하는 모든 경로 추가
                         "/api/user/join" // 회원가입 API 등
-                );
+                );// 게시글 작성자 체크 인터셉터
+//        registry.addInterceptor(boardInterceptor)
+//                .order(2) // 로그인 체크 후 실행
+//                .addPathPatterns(
+//                        "/board/{id}",      // 게시글 상세 페이지
+//                        "/api/board/{id}"   // 게시글 API (조회, 삭제 등)
+//                )
+//                .excludePathPatterns(
+//                        "/board",
+//                        "/board/new",
+//                        "/board/save"
+//                );
     }
 }

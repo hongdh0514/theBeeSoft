@@ -6,6 +6,7 @@
     <link rel="stylesheet" type="text/css" th:href="@{/css/user.css}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
+<div th:replace="~{fragments :: loginUser}"></div>
 <body class="container mt-4">
     <div class="test">
         <h2>회원가입</h2>
@@ -42,29 +43,33 @@
             $("#joinBtn").click(function() {
                 console.log("회원가입 버튼 클릭됨");
 
-                var joinId = $("#joinId").val();
-                var joinPw = $("#joinPw").val();
-                var joinRePw = $("#joinRePw").val();
+                let joinId = $("#joinId").val();
+                let joinPw = $("#joinPw").val();
+                let joinRePw = $("#joinRePw").val();
+                let responseDiv = $("#responseArea");
+                let checkPwDiv = $("#checkPw");
 
                 if (!joinId || !joinPw || !joinRePw) {
-                    $("#responseArea").text("모든 값을 입력하세요.").css({"display": "block", "color": "red"});
+                    responseDiv.text("모든 값을 입력하세요.").css({"display": "block", "color": "red"});
+                    checkPwDiv.css("display", "none");
                     console.log("빈 값 감지됨");
-                    return;
+                    return 0;
                 }
 
                 if (joinPw !== joinRePw) {
-                    $("#checkPw").text("비밀번호가 일치하지 않습니다.").css({"display": "block", "color": "red"});
+                    checkPwDiv.text("비밀번호가 일치하지 않습니다.").css({"display": "block", "color": "red"});
+                    responseDiv.css("display", "none");
                     console.log("비밀번호 불일치");
-                    return;
+                    return 1;
                 }
 
-                $("#checkPw").text("비밀번호가 일치합니다.").css({"display": "block", "color": "green"});
+                checkPwDiv.text("비밀번호가 일치합니다.").css({"display": "block", "color": "green"});
+                responseDiv.css("display", "none").text('');
                 console.log("비밀번호 일치");
-                
-                responseArea.textContent = '서버에 데이터를 전송 중...';
-                responseArea.style.display = 'block';
 
-                var user = {
+                responseDiv.text("서버에 데이터를 전송 중...").css({"display": "block", "color": "blue"});
+
+                let user = {
                 	userId: joinId,
                 	userPw: joinPw
                 };
@@ -80,15 +85,32 @@
                         console.log("AJAX 성공, 응답:", response);
                         if (response === "success") {
                             alert("회원가입이 성공적으로 완료되었습니다!");
-                            $("#responseArea").css("display", "none");
+                            responseDiv.css("display", "none");
                             window.location.href = "/board";
-                        } else {
-                            $("#responseArea").text("이미 존재하는 아이디입니다.").css({"display": "block", "color": "red"});
+                        }
+                        else if (response === "failure_login_session"){
+                            responseDiv.text("로그인 세션이 존재합니다. 3초 후에 메인 화면으로 이동합니다...").css({"display": "block", "color": "orange"});
+
+                            setTimeout(function() {
+                                console.log("5초 경과, 메인 화면으로 이동합니다.");
+                                window.location.href = "/";
+                            }, 3000);
+
+                        }
+                        else if(response === "success_session_off") {
+                            responseDiv.text("기존 로그인 정보를 끊고 로그인합니다.").css({"display": "block", "color": "orange"});
+
+                            setTimeout(function() {
+                                window.location.href = "/board";
+                            }, 1500);
+                        }
+                        else if (response === "failure"){
+                            responseDiv.text("이미 존재하는 아이디입니다.").css({"display": "block", "color": "red"});
                         }
                     },
                     error: function(xhr, status, error) {
                         console.error("AJAX 오류 - 상태:", status, "에러:", error, "응답:", xhr.responseText);
-                        $("#responseArea").text("서버 오류: " + xhr.responseText).css({"display": "block", "color": "red"});
+                        responseDiv.text("서버 오류: " + xhr.responseText).css({"display": "block", "color": "red"});
                     }
                 });
             });

@@ -5,23 +5,24 @@ import com.example.board.user.repository.UserRepository;
 import com.example.board.user.domain.User;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
-@RequiredArgsConstructor // Lombok이 자동으로 생성자 추가
+@RequiredArgsConstructor
 public class UserService {
-	
-	@Autowired
+
 	private final UserRepository userRepository;
-	
-	public Optional<User> login(String userId, String userPw) {
+
+//                null 체크
+//                전체를 try catch 문 사용하기 -> 쿼리마다 try catch
+	public Optional<User> findUser(String userId, String userPw) {
         Optional<User> optionalUser = userRepository.findByUserId(userId);
-        
+
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
+
             if (user.getUserPw().equals(userPw)) {
                 return optionalUser;
             }
@@ -29,19 +30,15 @@ public class UserService {
         return Optional.empty();
     }
 	
-	public boolean registerUser(User user) {
+	public boolean saveUser(User user) {
         // 중복 ID 체크
         if (userRepository.findByUserId(user.getUserId()).isPresent()) {
             System.out.println("[Service] join fail id (duplication) " + user.getUserId());
             return false;
         }
 
-        // 디버깅 출력 (필드별로 명시적 출력)
         System.out.println("[Service] join request - userId: " + user.getUserId() +
-                          ", userPw: " + user.getUserPw() + 
-                          ", userAuth: " + user.getUserAuth());
-        // 기본 권한 설정
-        user.setUserAuth("user");
+                          ", userPw: " + user.getUserPw());
         // 사용자 저장
         userRepository.save(user);
 

@@ -6,6 +6,7 @@
     <link rel="stylesheet" type="text/css" th:href="@{/css/user.css}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
+<div th:replace="~{fragments :: loginUser}"></div>
 <body class="container mt-4">
     <div class="test">
         <h2>로그인</h2>
@@ -33,18 +34,19 @@
     <script>
         $(document).ready(function() {
             $("#loginBtn").click(function() {
-                var userId = $("#userId").val();
-                var userPw = $("#userPw").val();
+                let userId = $("#userId").val();
+                let userPw = $("#userPw").val();
+                let responseDiv = $("#responseArea");
 
                 if (!userId || !userPw) {
-                    $("#responseArea").text("아이디와 비밀번호를 입력하세요.").css({"display": "block", "color": "red"});
-                    return;
+                    responseDiv.text("아이디와 비밀번호를 입력하세요.").css({"display": "block", "color": "red"});
+                    return 0;
+                //     구별을 위해 리턴에 숫자 담기
                 }
-                
-                responseArea.textContent = '서버에 데이터를 전송 중...';
-                responseArea.style.display = 'block';
 
-                var user = {
+                responseDiv.text("서버에 데이터를 전송 중...").css({"display": "block", "color": "blue"});
+
+                let user = {
                     userId: userId,
                     userPw: userPw
                 };
@@ -57,14 +59,25 @@
                     success: function(response) {
                         if (response === "success") {
                             alert("로그인 성공!");
-                            $("#responseArea").css("display", "none");
+                            responseDiv.css("display", "none");
                             window.location.href = "/board";
-                        } else {
-                            $("#responseArea").text("아이디 또는 비밀번호가 잘못되었습니다.").css({"display": "block", "color": "red"});
+                        }
+                        else if(response === "failure_login_session") {
+                            responseDiv.text("로그인 세션이 존재합니다.").css({"display": "block", "color": "red"});
+                        }
+                        else if(response === "success_session_off") {
+                            responseDiv.text("기존 로그인 정보를 끊고 로그인합니다.").css({"display": "block", "color": "orange"});
+
+                            setTimeout(function() {
+                                window.location.href = "/board";
+                            }, 1500);
+                        }
+                        else {
+                            responseDiv.text("아이디 또는 비밀번호가 잘못되었습니다.").css({"display": "block", "color": "red"});
                         }
                     },
                     error: function(xhr) {
-                        $("#responseArea").text(xhr.responseText).css({"display": "block", "color": "red"});
+                        responseDiv.text(xhr.responseText).css({"display": "block", "color": "red"});
                     }
                 });
             });

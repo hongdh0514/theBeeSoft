@@ -4,10 +4,13 @@
     <title>게시판 목록</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" th:href="@{/css/board.css}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body class="container mt-4">
+    <div th:replace="~{fragments :: loginUser}"></div>
     <div class="title-container">
    		<h2>게시판 목록</h2>
+
     	<a href="/user/logout" class="loginBtn btn btn-primary">로그아웃</a>
     </div>
     <table class="table">
@@ -24,16 +27,108 @@
             <tr th:each="board : ${boards}">
                 <td th:text="${board.id}"></td>
                 <td>
-                    <a th:href="@{/board/{id}(id=${board.id})}" th:text="${board.title}"></a>
+                    <a class="titleBtn" th:text="${board.title}" th:data-board-id="${board.id}" th:data-board-writer="${board.writer}"></a>
                 </td>
                 <td th:text="${board.writer}"></td>
                 <td th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
                 <td>
-                    <a th:href="@{/board/delete/{id}(id=${board.id})}" class="btn btn-danger btn-sm">삭제</a>
+                    <a th:data-board-id="${board.id}" th:data-board-writer="${board.writer}" class="deleteBtn btn btn-danger btn-sm">삭제</a>
                 </td>
             </tr>
         </tbody>
     </table>
     <a href="/board/new" class="btn btn-primary">새 글 작성</a>
+
+    <script>
+        $(document).ready(function() {
+            console.log("jQuery 로드 완료, DOM 준비됨");
+
+            $(".titleBtn").click(function() {
+                console.log("게시글 타이틀 버튼 클릭됨");
+
+                let loginId = $("#loginUser").data('login-id');
+                let boardWriter = $(this).data('board-writer');
+                let boardId = $(this).data('board-id');
+
+                // if (!loginId.toLowerCase().includes("admin") && loginId !== boardWriter) {
+                //     alert("작성자만 조회 가능합니다!");
+                //     window.location.href = "/board";
+                //     return;
+                // }
+
+                console.log("AJAX 요청 시작:" + boardId);
+
+                $.ajax({
+                    type: "GET",
+                    url: "/api/board/" + boardId,
+                    success: function(response) {
+                        if(response === "success") {
+                            console.log("AJAX 성공, 응답:", response);
+                            window.location.href = "/board/" + boardId;
+                        }
+                        else if (response === "failure_no_login_user") {
+                            alert("로그인 후 시도해주세요.")
+                            window.location.href = "/";
+                        }
+                        else if (response === "failure_not_found") {
+                            alert("존재하지 않는 게시글입니다.")
+                            window.location.href = "/board";
+                        }
+                        else if (response === "failure_admin_or_writer") {
+                            alert("작성자 혹은 운영자만 조회할 수 있습니다.")
+                            window.location.href = "/board";
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("AJAX 오류 - 상태:", status, "에러:", error, "응답:", xhr.responseText);
+                    }
+                });
+            });
+
+            $(".deleteBtn").click(function() {
+                console.log("삭제 버튼 클릭됨");
+
+                let loginId = $("#loginUser").data('login-id');
+                let boardWriter = $(this).data('board-writer');
+                let boardId = $(this).data('board-id');
+
+                // if (!loginId.toLowerCase().includes("admin") && loginId !== boardWriter) {
+                //     alert("작성자만 삭제 가능합니다!");
+                //     window.location.href = "/board";
+                //     return;
+                // }
+
+                console.log("AJAX 요청 시작:" + boardId);
+
+                $.ajax({
+                    type: "DELETE",
+                    url: "/api/board/" + boardId,
+                    success: function(response) {
+                        if(response === "success") {
+                            console.log("AJAX 성공, 응답:", response);
+                            alert("게시글(ID: " + boardId + ")이 성공적으로 삭제되었습니다.");
+                            $(this).closest('tr').remove();
+                        }
+                        else if (response === "failure_no_login_user") {
+                            alert("로그인 후 시도해주세요.")
+                            window.location.href = "/";
+                        }
+                        else if (response === "failure_not_found") {
+                            alert("존재하지 않는 게시글입니다.")
+                            window.location.href = "/board";
+                        }
+                        else if (response === "failure_admin_or_writer") {
+                            alert("작성자 혹은 운영자만 삭제할 수 있습니다.")
+                            window.location.href = "/board";
+                        }
+                    }.bind(this),
+                    error: function(xhr, status, error) {
+                        console.error("AJAX 오류 - 상태:", status, "에러:", error, "응답:", xhr.responseText);
+                        window.location.href = "/board";
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
