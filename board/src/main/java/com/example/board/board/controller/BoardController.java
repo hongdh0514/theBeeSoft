@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpSession;
 
@@ -26,58 +27,25 @@ public class BoardController {
         return boardService.findAll();
     }
 
-    // 게시글 조회
-    @GetMapping("/{id}")
-    public String getBoardById(
-            @PathVariable @NonNull Long id,
-            @SessionAttribute(name = "loginUser") User loginUser,
-            HttpSession session) {
+//    게시글 상세 조회
+//    @GetMapping("/{id}")
+//    public ResponseEntity<String> checkBoard(@PathVariable Long id, HttpSession session) {
+//
+//        User loginUser = (User) session.getAttribute("loginUser");
+//        String result = boardService.checkBoardApi(id, loginUser);
+//
+//        return ResponseEntity.ok(result);
+//    }
 
-        if (loginUser == null) {
-            return "failure_no_login_user";
-        }
-
-        Optional<Board> board = boardService.findById(id);
-        if (board.isEmpty()) {
-            return "failure_not_found";
-        }
-
-        String loginUserId = loginUser.getUserId();
-        if (loginUserId.toLowerCase().contains("admin") || board.get().getWriter().equals(loginUserId)) {
-            return "success";
-        } else {
-            return "failure_admin_or_writer";
-        }
-    }
+    //게시글 삭제
+//    @DeleteMapping("/{id}")
+//    public void deleteBoard(@PathVariable Long id) {
+//        boardService.deleteById(id);
+//    }
 
     // 게시글 등록
     @PostMapping
     public Board createBoard(@RequestBody @NonNull Board board) {
         return boardService.save(board);
-    }
-
-    // 게시글 삭제
-    @DeleteMapping("/{id}")
-    public String deleteBoard(
-            @PathVariable @NonNull Long id,
-            @SessionAttribute(name = "loginUser") User loginUser,
-            HttpSession session) {
-
-        if (loginUser == null) {
-            return "failure_no_login_user";
-        }
-
-        Optional<Board> board = boardService.findById(id);
-        if (board.isEmpty()) {
-            return "failure_not_found";
-        }
-
-        String loginUserId = loginUser.getUserId();
-        if (loginUserId.toLowerCase().contains("admin") || board.get().getWriter().equals(loginUserId)) {
-            boardService.deleteById(id);
-            return "success";
-        } else {
-            return "failure_admin_or_writer";
-        }
     }
 }

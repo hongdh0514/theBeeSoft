@@ -36,10 +36,10 @@ public class UserController {
 
         if (loginResult.isPresent()) {
             User loginUser = loginResult.get();
+            String returnMsg;
 //            if (loginCheck(session)) {
 //                returnMsg = "failure_login_session";
 //            }
-            String returnMsg = "";
             if (loginCheck(session)) {
                 session.removeAttribute("loginUser");
                 returnMsg = "success_session_off";
@@ -49,6 +49,7 @@ public class UserController {
             }
 
             session.setAttribute("loginUser", loginUser);
+            session.setMaxInactiveInterval(60);
             System.out.println("[Controller] login success id : " + loginUser.getUserId());
 
             return returnMsg;
@@ -65,11 +66,11 @@ public class UserController {
         System.out.println("[Controller] join request id : " + user.getUserId());
         
         if (userService.saveUser(user)) {
+            String returnMsg;
+
 //            if (loginCheck(session)) {
 //                return "failure_login_session";
 //            }
-
-            String returnMsg = "";
             if (loginCheck(session)) {
                 session.removeAttribute("loginUser");
                 returnMsg = "success_session_off";
@@ -79,6 +80,7 @@ public class UserController {
             }
 
             session.setAttribute("loginUser", user);
+            session.setMaxInactiveInterval(60);
             System.out.println("[Controller] join success id : " + user.getUserId());
 
             return returnMsg;
