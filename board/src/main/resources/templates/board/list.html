@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="kr">
 <head>
+    <meta charset="UTF-8">
     <title>게시판 목록</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" th:href="@{/css/board.css}">
@@ -8,95 +9,11 @@
 </head>
 <body class="container mt-4" th:data-error-message="${errorMessage}">
     <div th:replace="~{fragments :: loginUser}"></div>
-    <div class="title-container">
-   		<h2>게시판 목록</h2>
+    <div th:replace="~{/board/boardList}"></div>
+    <div id="boardDetailBox"></div>
+    <div id="boardWriteBox"></div>
+    <div id="boardResultBox"></div>
 
-    	<a href="/user/logout" class="loginBtn btn btn-primary">로그아웃</a>
-    </div>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>제목</th>
-                <th>작성자</th>
-                <th>작성일</th>
-                <th>관리</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="board : ${boards}">
-                <td th:text="${board.id}"></td>
-                <td>
-<!--                    <a class="titleBtn" th:text="${board.title}" th:data-board-id="${board.id}" th:data-board-writer="${board.writer}"></a>-->
-                    <a th:href="@{/board/detail/{id}(id=${board.id})}" th:text="${board.title}"></a>
-                </td>
-                <td th:text="${board.writer}"></td>
-                <td th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
-                <td>
-<!--                    <a th:data-board-id="${board.id}" th:data-board-writer="${board.writer}" class="deleteBtn btn btn-danger btn-sm">삭제</a>-->
-                    <a th:data-board-id="${board.id}" th:href="@{/board/delete/{id}(id=${board.id})}" class="deleteBtn btn btn-danger btn-sm">삭제</a>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <a href="/board/new" class="btn btn-primary">새 글 작성</a>
-
-    <script th:inline="javascript">
-        $(document).ready(function() {
-            console.log("jQuery 로드 완료, DOM 준비됨");
-
-            // HTML 속성에서 에러 메시지 가져오기
-            const errorMessage = $('body').data('error-message');
-            if (typeof errorMessage === 'string' && errorMessage.trim() !== '') {
-                alert(errorMessage);
-            }
-
-            // $(".titleBtn").click(function(e) {
-            //     e.preventDefault();
-            //     let boardId = $(this).data('board-id');
-            //     console.log("게시글 조회 요청: ID = " + boardId);
-            //
-            //     $.ajax({
-            //         type: "GET",
-            //         url: "/api/board/" + boardId,
-            //         success: function(response) {
-            //             if(response === "success") {
-            //                 // console.log("AJAX 성공, 응답:", response);
-            //                 alert("[Ajax] 조회 성공")
-            //                 window.location.href = "/board/" + boardId;
-            //             }
-            //             else if (response === "failure_no_login_user") {
-            //                 alert("[Ajax] 로그인 후 시도해주세요.")
-            //                 window.location.href = "/";
-            //             }
-            //             else if (response === "failure_not_found") {
-            //                 alert("[Ajax] 존재하지 않는 게시글입니다.")
-            //                 window.location.href = "/board";
-            //             }
-            //             else if (response === "failure_admin_or_writer") {
-            //                 console.log(response)
-            //                 alert("[Ajax] 작성자 혹은 운영자만 조회할 수 있습니다.")
-            //                 // window.location.href = "/board";
-            //             }
-            //         },
-            //         error: function(xhr, status, error) {
-            //             console.error("AJAX 오류:", status, error, xhr.responseText);
-            //             alert("[Ajax] 게시글 조회 중 오류가 발생했습니다.");
-            //             window.location.href = "/board";
-            //         }
-            //     });
-            // });
-
-            $(".deleteBtn").click(function(event) {
-                let boardId = $(this).data('board-id');
-                if (confirm("게시글(ID: " + boardId + ")을 삭제하시겠습니까?")) {
-                }
-                else {
-                    alert("작업을 취소하였습니다.")
-                    event.preventDefault();
-                }
-            });
-        });
-    </script>
+    <script th:src="@{/js/board.js}"></script>
 </body>
 </html>

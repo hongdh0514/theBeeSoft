@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="boardResultBox">
+    <tr th:each="board : ${boards}">
+        <td th:text="${board.id}"></td>
+        <td>
+            <a class="titleBtn" th:text="'(' + ${board.categoryName} + ') ' + ${board.title}" th:data-board-id="${board.id}" th:data-board-writer="${board.writer}"></a>
+        </td>
+        <td th:text="${board.writer}"></td>
+        <td th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+        <td>
+            <a th:data-board-id="${board.id}" th:data-board-writer="${board.writer}" class="deleteBtn btn btn-danger btn-sm">삭제</a>
+        </td>
+    </tr>
+    <tr th:if="${boards == null or boards.isEmpty()}" class="noDataTr">
+        <td colspan="5">검색 결과가 없습니다.</td>
+    </tr>
+</th:block>
+</body>
+</html>

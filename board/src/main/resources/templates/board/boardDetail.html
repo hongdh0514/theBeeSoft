@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Fragments</title>
+</head>
+<body>
+<th:block>
+    <div th:fragment="boardDetailBox">
+        <h2>게시글 상세</h2>
+        <div th:if="${boardDetail != null}">
+            <p><strong>글머리:</strong> <span th:text="${boardDetail.categoryName}"></span></p>
+            <p><strong>ID:</strong> <span th:text="${boardDetail.id}"></span></p>
+            <p><strong>제목:</strong> <span th:text="${boardDetail.title}"></span></p>
+            <p><strong>작성자:</strong> <span th:text="${boardDetail.writer}"></span></p>
+            <p><strong>작성일:</strong> <span th:text="${#temporals.format(boardDetail.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+            <p><strong>내용:</strong> <span th:text="${boardDetail.content}"></span></p>
+        </div>
+        <a class="btn btn-primary backToList">목록으로</a>
+        <a th:data-board-id="${boardDetail.id}" th:data-board-writer="${boardDetail.writer}" class="deleteBtn btn btn-danger btn-primary">삭제</a>
+    </div>
+</th:block>
+</body>
+</html>

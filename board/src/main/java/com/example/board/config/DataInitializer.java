@@ -1,7 +1,9 @@
 package com.example.board.config; // 또는 초기화 관련 적절한 패키지
 
 import com.example.board.board.domain.Board;
+import com.example.board.board.domain.Category;
 import com.example.board.board.repository.BoardRepository;
+import com.example.board.board.repository.CategoryRepository;
 import com.example.board.user.domain.User; // User 엔티티 import
 import com.example.board.user.repository.UserRepository; // UserRepository import
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -24,11 +26,13 @@ public class DataInitializer implements CommandLineRunner {
     private final ObjectMapper objectMapper;
     private final BoardRepository boardRepository;
     private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
 
-    public DataInitializer(ObjectMapper objectMapper, BoardRepository boardRepository, UserRepository userRepository) {
+    public DataInitializer(ObjectMapper objectMapper, BoardRepository boardRepository, UserRepository userRepository, CategoryRepository categoryRepository) {
         this.objectMapper = objectMapper;
         this.boardRepository = boardRepository;
         this.userRepository = userRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     @Override
@@ -37,6 +41,7 @@ public class DataInitializer implements CommandLineRunner {
         // 각 초기화 메소드 호출
         initializeBoards();
         initializeUsers();
+        initializeCategory();
     }
 
     // 게시판 데이터 초기화 메소드
@@ -88,6 +93,35 @@ public class DataInitializer implements CommandLineRunner {
             }
         } else {
             log.info("User data already exists. Skipping initialization.");
+        }
+    }
+
+    // 카테고리 데이터 초기화 메소드
+    private void initializeCategory() {
+        if (categoryRepository.count() == 0) {
+            log.info("Initializing user data...");
+            try {
+                // 1. User 데이터용 JSON 파일 읽기
+                ClassPathResource resource = new ClassPathResource("data/categoryData.json"); // 사용자 JSON 파일 경로
+                InputStream inputStream = resource.getInputStream();
+
+                // 2. JSON을 User 엔티티 리스트로 직접 변환
+                // JSON 필드 이름과 User 엔티티 필드 이름 일치 가정 (userId 제외)
+                List<Category> categoryToInitialize = objectMapper.readValue(inputStream, new TypeReference<List<Category>>() {});
+
+                // 3. 읽어온 User 엔티티 리스트를 DB에 저장
+                if (categoryToInitialize != null && !categoryToInitialize.isEmpty()) {
+                    categoryRepository.saveAll(categoryToInitialize);
+                    log.info("Initialized category data: added {} boards.", categoryToInitialize.size());
+                } else {
+                    log.info("No category data found in JSON to initialize.");
+                }
+
+            } catch (Exception e) {
+                log.error("Error during category data initialization.", e);
+            }
+        } else {
+            log.info("category data already exists. Skipping initialization.");
         }
     }
 }

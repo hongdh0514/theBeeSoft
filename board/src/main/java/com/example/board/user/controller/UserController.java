@@ -71,6 +71,8 @@ public class UserController {
 //            if (loginCheck(session)) {
 //                return "failure_login_session";
 //            }
+
+//            try catch 문으로 문제 생겼을 때 초기화 시키고 메인으로(세션 날리고 로그인 화면, 버퍼 클리어 쿠키 지우기)
             if (loginCheck(session)) {
                 session.removeAttribute("loginUser");
                 returnMsg = "success_session_off";

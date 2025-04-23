@@ -29,6 +29,8 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
         HttpSession session = request.getSession(false);
 
         // 세션이 없거나, 세션에 "loginUser" 속성이 없으면
+
+//        "" 값으로 없는값 체크
         if (session == null || session.getAttribute("loginUser") == null) {
             System.out.println("[Login Interceptor] no session user");
 

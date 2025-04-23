@@ -19,6 +19,7 @@ public class Board {
     private String title; 
     private String content;
     private String writer;
+    private String categoryName;
 
     @Column(updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
