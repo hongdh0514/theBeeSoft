@@ -21,25 +21,25 @@
             </tr>
             </thead>
             <tbody>
-            <tr th:each="board : ${boards.content}">
-                <td th:text="${board.id}"></td>
-                <td>
-                    <a class="titleBtn" th:text="'(' + ${board.categoryName} + ') ' + ${board.title}" th:data-board-id="${board.id}" th:data-board-writer="${board.writer}"></a>
-                </td>
-                <td th:text="${board.writer}"></td>
-                <td th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
-                <td>
-                    <a th:data-board-id="${board.id}" th:data-board-writer="${board.writer}" class="deleteBtn btn btn-danger btn-sm">삭제</a>
-                </td>
-            </tr>
-            <tr th:if="${boards == null or boards.isEmpty()}" class="noDataTr">
-                <td colspan="5">검색 결과가 없습니다.</td>
-            </tr>
-            <tr style="display: none;">
-                <td colspan="5">
-                    <span id="totalPages" th:data-total-pages="${boards.totalPages}"></span>
-                </td>
-            </tr>
+<!--            <tr th:each="board : ${boards.content}">-->
+<!--                <td th:text="${board.id}"></td>-->
+<!--                <td>-->
+<!--                    <a class="titleBtn" th:text="'(' + ${board.categoryName} + ') ' + ${board.title}" th:data-board-id="${board.id}" th:data-board-writer="${board.writer}"></a>-->
+<!--                </td>-->
+<!--                <td th:text="${board.writer}"></td>-->
+<!--                <td th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd HH:mm')}"></td>-->
+<!--                <td>-->
+<!--                    <a th:data-board-id="${board.id}" th:data-board-writer="${board.writer}" class="deleteBtn btn btn-danger btn-sm">삭제</a>-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            <tr th:if="${boards == null or boards.isEmpty()}" class="noDataTr">-->
+<!--                <td colspan="5">검색 결과가 없습니다.</td>-->
+<!--            </tr>-->
+<!--            <tr style="display: none;">-->
+<!--                <td colspan="5">-->
+<!--                    <span id="totalPages" th:data-total-pages="${boards.totalPages}"></span>-->
+<!--                </td>-->
+<!--            </tr>-->
             </tbody>
         </table>
         <div class="pagination-container"></div>

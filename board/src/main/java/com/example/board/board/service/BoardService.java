@@ -22,7 +22,7 @@ public class BoardService {
     private final CategoryRepository categoryRepository;
 
     public Page<Board> findAll(int page) {
-        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "createdAt", "id"));
         return boardRepository.findAll(pageable);
     }
 
@@ -43,6 +43,7 @@ public class BoardService {
         if(board.isEmpty()) {
             return "failure_not_found";
         }
+
         String loginUserId = loginUser.getUserId();
         if(loginUserId.toLowerCase().contains("admin") || board.get().getWriter().equals(loginUserId)) {
             return "success";
@@ -57,7 +58,7 @@ public class BoardService {
 
     public Page<Board> findAllByCond(String condCode, String inputVal, int page) {
 //        Pageable pageable = PageRequest.of(page, 10);
-        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "createdAt", "id"));
         return switch (condCode) {
             case "1" -> boardRepository.findByTitleContainingIgnoreCase(inputVal, pageable);
             case "2" -> boardRepository.findByTitleContainingIgnoreCaseOrCategoryNameContainingIgnoreCase(inputVal, inputVal, pageable);

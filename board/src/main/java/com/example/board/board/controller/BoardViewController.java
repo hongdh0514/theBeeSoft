@@ -16,17 +16,24 @@ public class BoardViewController {
 
     private final BoardService boardService;
 
-    // 게시글 목록 조회
+    // 게시글 페이지 이동
     @GetMapping
-    public String list(HttpSession session, Model model, @RequestParam(defaultValue = "0") int page) {
-        model.addAttribute("boards", boardService.findAll(page));
-        model.addAttribute("categories", boardService.findAllCategories());
-        String errorMessage = (String) session.getAttribute("errorMessage");
-        if (errorMessage != null) {
-            model.addAttribute("errorMessage", errorMessage);
-            session.removeAttribute("errorMessage");
-        }
+    public String list() {
+//        String errorMessage = (String) session.getAttribute("errorMessage");
+//        if (errorMessage != null) {
+//            model.addAttribute("errorMessage", errorMessage);
+//            session.removeAttribute("errorMessage");
+//        }
         return "board/list";
+    }
+
+    // 게시글 목록 조회
+    @GetMapping("/boardAll")
+    public String getAllBoardsAPI(Model model, @RequestParam(defaultValue = "0") int page) {
+        var boards = boardService.findAll(page);
+        model.addAttribute("boards", boards);
+        System.out.println("전체 목록: totalPages = " + boards.getTotalPages() + ", totalElements = " + boards.getTotalElements());
+        return "/board/boardResult :: boardResultBox";
     }
 
     // 게시글 작성 폼
@@ -88,14 +95,6 @@ public class BoardViewController {
         var boards = boardService.findAllByCond(condCode, inputVal, page);
         model.addAttribute("boards", boards);
         System.out.println("검색 결과: totalPages = " + boards.getTotalPages() + ", totalElements = " + boards.getTotalElements());
-        return "/board/boardResult :: boardResultBox";
-    }
-
-    @GetMapping("/boardAll")
-    public String getAllBoardsAPI(Model model, @RequestParam(defaultValue = "0") int page) {
-        var boards = boardService.findAll(page);
-        model.addAttribute("boards", boards);
-        System.out.println("전체 목록: totalPages = " + boards.getTotalPages() + ", totalElements = " + boards.getTotalElements());
         return "/board/boardResult :: boardResultBox";
     }
 }

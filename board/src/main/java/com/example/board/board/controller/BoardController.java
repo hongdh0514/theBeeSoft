@@ -17,10 +17,10 @@ public class BoardController {
     private final BoardService boardService;
 
     // 전체 게시글 조회
-    @GetMapping
-    public Page<Board> getAllBoards(@RequestParam(defaultValue = "0") int page, HttpSession session) {
-        return boardService.findAll(page);
-    }
+//    @GetMapping
+//    public Page<Board> getAllBoards(@RequestParam(defaultValue = "0") int page, HttpSession session) {
+//        return boardService.findAll(page);
+//    }
 
     // 게시글 상세 조회
     @GetMapping("/{id}")
