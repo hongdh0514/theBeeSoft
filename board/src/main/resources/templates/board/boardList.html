@@ -8,7 +8,6 @@
     <div id="boardListBox">
         <div class="title-container">
             <h2>게시판 목록</h2>
-
             <a href="/user/logout" class="loginBtn btn btn-primary">로그아웃</a>
         </div>
         <table class="table">
@@ -22,7 +21,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr th:each="board : ${boards}">
+            <tr th:each="board : ${boards.content}">
                 <td th:text="${board.id}"></td>
                 <td>
                     <a class="titleBtn" th:text="'(' + ${board.categoryName} + ') ' + ${board.title}" th:data-board-id="${board.id}" th:data-board-writer="${board.writer}"></a>
@@ -30,27 +29,35 @@
                 <td th:text="${board.writer}"></td>
                 <td th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
                 <td>
-                    <!--ajax 하려면 url 고정해야 함-->
                     <a th:data-board-id="${board.id}" th:data-board-writer="${board.writer}" class="deleteBtn btn btn-danger btn-sm">삭제</a>
+                </td>
+            </tr>
+            <tr th:if="${boards == null or boards.isEmpty()}" class="noDataTr">
+                <td colspan="5">검색 결과가 없습니다.</td>
+            </tr>
+            <tr style="display: none;">
+                <td colspan="5">
+                    <span id="totalPages" th:data-total-pages="${boards.totalPages}"></span>
                 </td>
             </tr>
             </tbody>
         </table>
+        <div class="pagination-container"></div>
         <a class="btn btn-primary newBtn">새 글 작성</a>
         <div class="searchBox">
             <div class="searchInput">
-                    <select id="condBox" class="form-control condSelect" required>
-                        <option value="1">제목</option>
-                        <option value="2">제목+말머리</option>
-                        <option value="3">내용</option>
-                    </select>
+                <select id="condBox" class="form-control condSelect" required>
+                    <option value="1">제목</option>
+                    <option value="2">제목+말머리</option>
+                    <option value="3">내용</option>
+                </select>
             </div>
             <div class="searchInput">
-                    <input id="inputBox" type="text" class="form-control searchInputTest" required autocomplete="off" placeholder="검색어를 입력하세요.">
+                <input id="inputBox" type="text" class="form-control searchInputTest" required autocomplete="off" placeholder="검색어를 입력하세요.">
             </div>
             <div class="searchInput">
-                <a class="btn-common searchBtn">검색</a>
-                <a class="btn-common searchCancelBtn" id="searchCancelBtn">취소</a>
+                <a class="btn-success searchBtn">검색</a>
+                <a class="btn-danger searchCancelBtn" id="searchCancelBtn">취소</a>
             </div>
         </div>
     </div>

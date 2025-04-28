@@ -14,7 +14,6 @@ $(document).ready(function() {
 
     // 게시글 작성
     $(".newBtn").click(function(e) {
-
         $.ajax({
             type: "GET",
             url: "/board/new_t",
@@ -25,7 +24,7 @@ $(document).ready(function() {
                 boardWriteBox.html(fragment).show();
             }
         });
-    })
+    });
 
     // 게시글 상세
     $(document).on('click', '#boardListBox .titleBtn', function(e) {
@@ -48,12 +47,10 @@ $(document).ready(function() {
                             boardDetailBox.html(fragment).show();
                         }
                     });
-                }
-                else if (response === "failure_not_found") {
-                    alert("[Ajax] 존재하지 않는 게시글입니다.")
-                }
-                else if (response === "failure_admin_or_writer") {
-                    alert("[Ajax] 작성자 혹은 운영자만 조회할 수 있습니다.")
+                } else if (response === "failure_not_found") {
+                    alert("[Ajax] 존재하지 않는 게시글입니다.");
+                } else if (response === "failure_admin_or_writer") {
+                    alert("[Ajax] 작성자 혹은 운영자만 조회할 수 있습니다.");
                 }
             },
             error: function(xhr, status, error) {
@@ -87,17 +84,51 @@ $(document).ready(function() {
                         boardResultBox.hide();
                         boardWriteBox.hide();
                         boardListBox.show();
-                        rowToRemove.fadeOut('slow', function() {
-                            rowToRemove.remove();
-                            if ($('#boardListBox table tbody tr').length === 0) {
-                                $('#boardListBox table tbody').html('<tr class="noDataTr"><td colspan="5">검색 결과가 없습니다.</td></tr>');
+                        rowToRemove.remove();
+                        let currentPage = getCurrentPage();
+                        let remainingRows = $('#boardListBox table tbody tr:not([style*="display: none"])').length;
+
+                        // 현재 페이지에 남은 게시글이 없고, 현재 페이지가 0이 아니면 이전 페이지로 이동
+                        if (remainingRows === 0 && currentPage > 0) {
+                            currentPage--;
+                            if ($('#searchCancelBtn').is(':visible')) {
+                                // 검색 중일 경우
+                                let condCode = $('.condSelect').val();
+                                let inputVal = $("#inputBox").val();
+                                $.ajax({
+                                    url: '/board/search',
+                                    type: 'POST',
+                                    data: {
+                                        condCode: condCode,
+                                        inputVal: inputVal,
+                                        page: currentPage
+                                    },
+                                    success: function(response) {
+                                        $('#boardListBox table tbody').html(response);
+                                        let totalPages = $(response).find('#totalPages').data('total-pages') || 1;
+                                        updatePagination(totalPages, currentPage);
+                                    },
+                                    error: function() {
+                                        alert('검색 중 오류가 발생했습니다.');
+                                    }
+                                });
+                            } else {
+                                // 일반 목록 조회
+                                loadBoards(currentPage);
                             }
-                        });
-                    }
-                    else if (response === "failure_not_found") {
+                        } else if (remainingRows === 0 && currentPage === 0) {
+                            // 첫 페이지가 비어 있으면 빈 상태 유지
+                            $('#boardListBox table tbody').html('<tr class="noDataTr"><td colspan="5">검색 결과가 없습니다.</td></tr>');
+                            updatePagination(1, 0); // 페이지네이션 초기화
+                        } else {
+                            // 남은 게시글이 있으면 페이지 유지
+                            let totalPages = $('#totalPages').data('total-pages') || 1;
+                            updatePagination(totalPages, currentPage);
+                        }
+
+                    } else if (response === "failure_not_found") {
                         alert("[Ajax] 존재하지 않는 게시글입니다.");
-                    }
-                    else if (response === "failure_admin_or_writer") {
+                    } else if (response === "failure_admin_or_writer") {
                         alert("[Ajax] 작성자 혹은 운영자만 삭제할 수 있습니다.");
                     }
                 },
@@ -107,8 +138,7 @@ $(document).ready(function() {
                     window.location.href = "/board";
                 }
             });
-        }
-        else {
+        } else {
             alert("작업을 취소하였습니다.");
         }
     }
@@ -122,6 +152,7 @@ $(document).ready(function() {
         boardListBox.show();
     });
 
+    // 검색 버튼 클릭
     $(".searchBtn").click(function(e) {
         e.preventDefault();
 
@@ -130,49 +161,135 @@ $(document).ready(function() {
 
         if (!condCode) {
             alert('검색조건을 선택하세요.');
-            return 0;
+            return;
         }
 
         if(inputVal === "" || inputVal.trim() === "" || !inputVal.trim()) {
-            alert("검색어를 입력해주세요.")
-            return 1;
+            alert("검색어를 입력해주세요.");
+            return;
         }
+
+        alert(condCode)
 
         $.ajax({
             url: '/board/search',
             type: 'POST',
             data: {
                 condCode: condCode,
-                inputVal: inputVal
+                inputVal: inputVal,
+                page: 0
             },
             success: function(response) {
-                // 서버에서 반환된 HTML 조각으로 게시글 목록 영역 업데이트
+                // console.log("검색 응답:", response);
                 $('#boardListBox table tbody').html(response);
                 $('#searchCancelBtn').show();
+                let totalPages = $(response).find('#totalPages').data('total-pages') || 1;
+                console.log("검색 후 totalPages:", totalPages);
+                updatePagination(totalPages, 0);
             },
-            error: function() {
+            error: function(xhr, status, error) {
+                console.error("검색 오류:", status, error, xhr.responseText);
                 alert('검색 중 오류가 발생했습니다.');
             }
         });
-    })
-
-    $("#searchCancelBtn").click(function() {
-        loadAllBoards(); // 전체 게시글 목록 다시 불러오기
-        $(this).hide(); // 취소 버튼 다시 숨기기
-        $("#inputBox").val(''); // 검색어 입력 필드 초기화 (선택 사항)
     });
 
-    function loadAllBoards() {
+    // 검색 취소
+    $("#searchCancelBtn").click(function() {
+        loadBoards(0);
+        $(this).hide();
+        $("#inputBox").val('');
+    });
+
+    // 페이지 버튼 클릭
+    $(document).on('click', '.page-link', function(e) {
+        e.preventDefault();
+        let page = $(this).data('page');
+        console.log("페이지 이동 요청: page =", page);
+        if ($('#searchCancelBtn').is(':visible')) {
+            let condCode = $('.condSelect').val();
+            let inputVal = $("#inputBox").val();
+            $.ajax({
+                url: '/board/search',
+                type: 'POST',
+                data: {
+                    condCode: condCode,
+                    inputVal: inputVal,
+                    page: page
+                },
+                success: function(response) {
+                    $('#boardListBox table tbody').html(response);
+                    let totalPages = $(response).find('#totalPages').data('total-pages') || 1;
+                    console.log("검색 페이지 이동 후 totalPages:", totalPages);
+                    updatePagination(totalPages, page);
+                },
+                error: function() {
+                    alert('검색 중 오류가 발생했습니다.');
+                }
+            });
+        } else {
+            loadBoards(page);
+        }
+    });
+
+    function loadBoards(page) {
+        console.log("loadBoards 호출: page =", page);
         $.ajax({
-            url: '/board/boardAll', // 전체 게시글 목록 API 엔드포인트 (이전 답변 참고)
+            url: '/board/boardAll',
             type: 'GET',
-            dataType: 'html', // 서버에서 HTML 조각을 받아서 처리
+            data: { page: page },
+            dataType: 'html',
             success: function(response) {
+                // console.log("loadBoards 응답:", response);
                 $('#boardListBox table tbody').html(response);
+                let totalPages = $(response).find('#totalPages').data('total-pages') || 1;
+                console.log("loadBoards 후 totalPages:", totalPages);
+                updatePagination(totalPages, page);
             },
-            error: function() {
+            error: function(xhr, status, error) {
+                console.error("loadBoards 오류:", status, error, xhr.responseText);
                 alert('전체 게시글 목록을 불러오는 중 오류가 발생했습니다.');
             }
         });
     }
+
+    function updatePagination(totalPages, currentPage) {
+        console.log("updatePagination 호출: totalPages =", totalPages, "currentPage =", currentPage);
+        let paginationHtml = '<nav><ul class="pagination">';
+
+        // 페이지 범위 설정 (최대 10개 페이지 표시)
+        let startPage = Math.max(0, currentPage - 5); // 현재 페이지 기준 좌우 5개
+        let endPage = Math.min(totalPages, startPage + 10); // 최대 10개 페이지 표시
+
+        // "이전" 버튼
+        if (currentPage > 0) {
+            paginationHtml += `<li class="page-item"><a class="page-link" href="#" data-page="${currentPage - 1}">이전</a></li>`;
+        } else {
+            paginationHtml += `<li class="page-item disabled"><span class="page-link">이전</span></li>`;
+        }
+
+        // 페이지 번호 버튼
+        for (let i = startPage; i < endPage; i++) {
+            paginationHtml += `<li class="page-item ${i === currentPage ? 'active' : ''}">
+                <a class="page-link" href="#" data-page="${i}">${i + 1}</a>
+            </li>`;
+        }
+
+        // "다음" 버튼
+        if (currentPage < totalPages - 1) {
+            paginationHtml += `<li class="page-item"><a class="page-link" href="#" data-page="${currentPage + 1}">다음</a></li>`;
+        } else {
+            paginationHtml += `<li class="page-item disabled"><span class="page-link">다음</span></li>`;
+        }
+
+        paginationHtml += '</ul></nav>';
+        $('#boardListBox .pagination-container').html(paginationHtml);
+    }
+
+    function getCurrentPage() {
+        return parseInt($('.pagination .active .page-link').data('page')) || 0;
+    }
+
+    // Initial load
+    loadBoards(0);
 });

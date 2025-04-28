@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 <th:block th:fragment="boardResultBox">
-    <tr th:each="board : ${boards}">
+    <tr th:each="board : ${boards.content}">
         <td th:text="${board.id}"></td>
         <td>
             <a class="titleBtn" th:text="'(' + ${board.categoryName} + ') ' + ${board.title}" th:data-board-id="${board.id}" th:data-board-writer="${board.writer}"></a>
@@ -15,6 +15,12 @@
     </tr>
     <tr th:if="${boards == null or boards.isEmpty()}" class="noDataTr">
         <td colspan="5">검색 결과가 없습니다.</td>
+    </tr>
+    <!-- totalPages를 tbody 안에 포함 -->
+    <tr style="display: none;">
+        <td colspan="5">
+            <span id="totalPages" th:data-total-pages="${boards.totalPages}"></span>
+        </td>
     </tr>
 </th:block>
 </body>

@@ -49,7 +49,7 @@ public class UserController {
             }
 
             session.setAttribute("loginUser", loginUser);
-            session.setMaxInactiveInterval(60);
+            session.setMaxInactiveInterval(30 * 60);
             System.out.println("[Controller] login success id : " + loginUser.getUserId());
 
             return returnMsg;
@@ -82,7 +82,7 @@ public class UserController {
             }
 
             session.setAttribute("loginUser", user);
-            session.setMaxInactiveInterval(60);
+            session.setMaxInactiveInterval(30 * 60);
             System.out.println("[Controller] join success id : " + user.getUserId());
 
             return returnMsg;
