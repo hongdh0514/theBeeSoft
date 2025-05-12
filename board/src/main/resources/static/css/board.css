@@ -130,3 +130,138 @@
     background-color: #fff;
     border-color: #dee2e6;
 }
+
+.comment-section {
+    margin: 500px 0;
+    border: 1px solid #ddd;
+    padding: 15px 15px 0;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.comment-write-form {
+    margin-bottom: 15px;
+}
+
+.comment_input-group {
+    display: flex;
+}
+
+.comment_input-group textarea {
+    flex-grow: 1;
+    border-radius: 5px 0 0 5px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    font-size: 1rem;
+}
+
+.comment_input-group button {
+    border-radius: 0 5px 5px 0;
+}
+
+#commentList ul {
+    list-style: none;
+    padding: 0;
+}
+
+#commentList li {
+    border-bottom: 1px solid #eee;
+    /*padding: 10px 0;*/
+    position: relative;
+}
+
+#commentList li:last-child {
+    border-bottom: none;
+}
+
+#commentList li p {
+    margin: 5px 0;
+    font-size: 1rem;
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+.comment-meta {
+    font-size: 0.8rem;
+    color: #777;
+    margin-bottom: 5px;
+}
+
+.comment-meta span {
+    margin-right: 10px;
+}
+
+.comment-actions {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+
+.comment-actions button {
+    margin-left: 5px;
+    font-size: 0.8rem;
+    padding: 5px 8px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.reply-form-container {
+    /*margin-left: 20px;*/
+    /*margin-top: 10px;*/
+    /*padding: 10px;*/
+    /*border: 1px solid #ddd;*/
+    /*border-radius: 5px;*/
+    /*background-color: #f9f9f9;*/
+}
+
+.reply-form-container .comment_input-group {
+    display: flex;
+}
+
+.reply-form-container .comment_input-group textarea {
+    flex-grow: 1;
+    border-radius: 5px 0 0 5px;
+    border: 1px solid #ccc;
+    padding: 8px;
+    font-size: 0.9rem;
+}
+
+.reply-form-container .comment_input-group button {
+    border-radius: 0 5px 5px 0;
+    font-size: 0.9rem;
+    padding: 8px 12px;
+}
+
+.reply-form-container button.cancel-reply-btn {
+    margin-top: 5px;
+    background-color: #f0f0f0;
+    color: #333;
+    border: 1px solid #ccc;
+}
+
+
+.comment_count {
+    color: red;
+    text-decoration: none;
+    font-weight: bold;
+}
+.comment_count:hover {
+    color: darkred;
+    cursor: pointer;
+}
+
+#scrollToTopBtn {
+    position: fixed; /* 버튼을 화면에 고정합니다. */
+    bottom: 20px;    /* 화면 하단에서 20px 위에 위치합니다. */
+    z-index: 99;     /* 다른 요소 위에 표시되도록 z-index를 설정합니다. */
+    border: none;
+    outline: none;
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 18px;
+    right: 20px;
+    opacity: 0.7;
+}

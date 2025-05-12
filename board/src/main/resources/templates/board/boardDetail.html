@@ -17,7 +17,61 @@
         </div>
         <a class="btn btn-primary backToList">목록으로</a>
         <a th:data-board-id="${boardDetail.id}" th:data-board-writer="${boardDetail.writer}" class="deleteBtn btn btn-danger btn-primary">삭제</a>
+        <a class="btn btn-success comment_btn">댓글</a>
+        <hr>
+        <div class="comment-section">
+            <h4>댓글 (<span id="commentCount" th:text="${#lists.size(comments)}">0</span>)</h4>
+
+            <div class="comment-write-form mb-3">
+                <input id="comment_board_id" type="hidden" name="boardId" th:value="${boardDetail.id}">
+                <div class="comment_input-group input-group">
+                    <textarea id="comment_content" class="form-control" name="content" rows="3" placeholder="댓글을 입력하세요..." required></textarea>
+                    <button class="comment_save_btn btn btn-outline-primary">등록</button>
+                </div>
+            </div>
+
+            <div id="commentList">
+                <ul th:if="${not #lists.isEmpty(comments)}">
+                    <li th:each="comment : ${comments}" th:id="${'comment-' + comment.id}">
+                        <p th:text="${comment.content}"></p>
+                        <div class="comment-meta">
+                            <span th:text="${comment.writer}"></span>
+                            <span th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+                        </div>
+                        <div class="comment-actions">
+                            <button type="button" class="btn btn-sm btn-outline-secondary reply-btn" th:data-comment-id="${comment.id}">답글</button>
+                            <button type="button" class="btn btn-sm btn-outline-danger delete-btn">삭제</button>
+                        </div>
+                        <div class="reply-form-container"></div>
+                    </li>
+                </ul>
+                <p th:if="${#lists.isEmpty(comments)}" class="text-muted">아직 댓글이 없습니다.</p>
+            </div>
+        </div>
+
     </div>
+<!--        <div class="comment-section mt-4">-->
+<!--            <h4>댓글 (<span id="commentCount" th:text="${#lists.size(comments)}">0</span>)</h4>-->
+
+<!--            <div class="comment-write-form mb-3">-->
+<!--                    <input id="comment_board_id" type="hidden" name="boardId" th:value="${boardDetail.id}">-->
+<!--                    <div class="comment_input-group input-group">-->
+<!--                        <textarea id="comment_content" class="form-control" name="content" rows="3" placeholder="댓글을 입력하세요..." required></textarea>-->
+<!--                        <button class="comment_save_btn btn btn-outline-primary">등록</button>-->
+<!--                    </div>-->
+<!--            </div>-->
+
+<!--            <div id="commentList">-->
+<!--                <ul th:if="${not #lists.isEmpty(comments)}">-->
+<!--                    <li th:each="comment : ${comments}">-->
+<!--                        <p th:text="${comment.content}"></p>-->
+<!--                    </li>-->
+<!--                </ul>-->
+<!--                <p th:if="${#lists.isEmpty(comments)}">아직 댓글이 없습니다.</p>-->
+<!--            </div>-->
+<!--        </div>-->
+
+<!--    </div>-->
 </th:block>
 </body>
 </html>

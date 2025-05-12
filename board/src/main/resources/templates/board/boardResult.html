@@ -6,6 +6,7 @@
         <td th:text="${board.id}"></td>
         <td>
             <a class="titleBtn" th:text="'(' + ${board.categoryName} + ') ' + ${board.title}" th:data-board-id="${board.id}" th:data-board-writer="${board.writer}"></a>
+            <a th:if="${commentCounts.get(board.id)} != null" class="comment_count" th:text="'(' + ${commentCounts.get(board.id)} + ')'"></a>
         </td>
         <td th:text="${board.writer}"></td>
         <td th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd HH:mm')}"></td>

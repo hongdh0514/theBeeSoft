@@ -4,6 +4,7 @@ import com.example.board.board.domain.Board;
 import com.example.board.board.domain.Category;
 import com.example.board.board.repository.BoardRepository;
 import com.example.board.board.repository.CategoryRepository;
+import com.example.board.board.repository.CommentRepository;
 import com.example.board.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
@@ -11,19 +12,30 @@ import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class BoardService {
 
     private final BoardRepository boardRepository;
+    private final CommentRepository commentRepository;
     private final CategoryRepository categoryRepository;
 
     public Page<Board> findAll(int page) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "createdAt", "id"));
         return boardRepository.findAll(pageable);
+    }
+
+    public List<Long> getBoardId(int page) {
+        Page<Board> boardPage = findAll(page);
+        return boardPage.getContent().stream()
+                .map(Board::getId)
+                .collect(Collectors.toList());
     }
 
     public Optional<Board> findById(Long id) {
@@ -34,7 +46,10 @@ public class BoardService {
         return boardRepository.save(board);
     }
 
+    @Transactional
     public void deleteById(Long id) {
+//        댓글 조회 후 있으면 삭제를 해야하나
+        commentRepository.deleteByBoardId(id);
         boardRepository.deleteById(id);
     }
 
@@ -65,5 +80,11 @@ public class BoardService {
             case "3" -> boardRepository.findByContentContainingIgnoreCase(inputVal, pageable);
             default -> Page.empty();
         };
+    }
+
+    public List<Long> getBoardIdsFromPage(Page<Board> boardPage) {
+        return boardPage.getContent().stream()
+                .map(Board::getId)
+                .collect(Collectors.toList());
     }
 }
