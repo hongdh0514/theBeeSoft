@@ -165,7 +165,7 @@
 }
 
 #commentList li {
-    border-bottom: 1px solid #eee;
+    /*border-bottom: 1px solid #eee;*/
     /*padding: 10px 0;*/
     position: relative;
 }
@@ -179,6 +179,7 @@
     font-size: 1rem;
     line-height: 1.5;
     word-break: break-word;
+    max-width: calc(100% - 100px);
 }
 
 .comment-meta {
@@ -266,6 +267,7 @@
     opacity: 0.7;
 }
 
+
 .comment-container {
     margin-bottom: 10px;
     border: 1px solid #eee;
@@ -276,11 +278,10 @@
 }
 
 /* 들여쓰기 위한 클래스 (재귀적으로 적용) */
-.indent-level-0 { margin-left: 0px; }
-.indent-level-1 { margin-left: 30px; background-color: #f8f9fa; border-left: 3px solid #007bff; padding-left: 10px; }
-.indent-level-2 { margin-left: 60px; background-color: #f1f3f5; border-left: 3px solid #28a745; padding-left: 10px; }
-.indent-level-3 { margin-left: 90px; background-color: #e9ecef; border-left: 3px solid #ffc107; padding-left: 10px; }
-/* 필요하다면 .indent-level-4 등 더 많은 레벨을 추가하세요. */
+.indent-level-0 { margin-left: 0; background-color: #ffffff; border-left: 3px solid skyblue;}
+.indent-level-1 { margin-left: 30px; background-color: #f8f9fa; border-left: 3px solid greenyellow; padding-left: 10px; }
+.indent-level-2 { margin-left: 60px; background-color: #f1f3f5; border-left: 3px solid coral; padding-left: 10px; }
+.indent-level-3 { margin-left: 90px; background-color: #e9ecef; border-left: 3px solid mediumslateblue; padding-left: 10px; }
 
 .comment-meta {
     font-size: 0.9em;
@@ -307,3 +308,4 @@
 .indent-level-0::before {
     content: none !important; /* 루트 댓글에는 화살표 표시 안 함 */
 }
+

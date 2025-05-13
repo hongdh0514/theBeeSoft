@@ -21,6 +21,7 @@
         <hr>
         <div class="comment-section">
             <h4>댓글 (<span id="commentCount" th:text="${totalCommentsCount}">0</span>)</h4>
+
             <div class="comment-write-form mb-3">
                 <input id="comment_board_id" type="hidden" name="boardId" th:value="${boardDetail.id}">
                 <div class="comment_input-group input-group">
@@ -30,9 +31,10 @@
             </div>
 
             <div id="commentList">
-                <ul class="list-unstyled"> <li th:each="comment : ${comments}" th:id="${'li-comment-' + comment.id}">
-                    <div th:replace="~{::comment-item(${comment}, 0)}"></div>
-                </li>
+                <ul class="list-unstyled">
+                    <li th:each="comment : ${comments}" th:id="${'li-comment-' + comment.id}">
+                        <div th:replace="~{::comment-item(${comment}, 0)}"></div>
+                    </li>
                 </ul>
                 <p th:if="${#lists.isEmpty(comments)}" class="text-muted">아직 댓글이 없습니다.</p>
             </div>
@@ -42,11 +44,14 @@
     <div th:fragment="comment-item(comment, indentLevel)">
         <div th:id="${'comment-item-' + comment.id}"
              th:class="${'comment-container indent-level-' + indentLevel}">
+
             <p th:text="${comment.content}"></p>
+
             <div class="comment-meta">
                 <span th:text="${comment.writer}"></span>
                 <span th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
             </div>
+
             <div class="comment-actions">
                 <th:block th:if="${indentLevel < 2}">
                     <button type="button" class="btn btn-sm btn-outline-secondary reply-btn"
@@ -55,6 +60,7 @@
                 <button type="button" class="btn btn-sm btn-outline-danger delete-btn"
                         th:data-comment-id="${comment.id}" th:data-board-id="${boardDetail.id}">삭제</button>
             </div>
+
             <div class="reply-form-container"></div>
 
             <ul th:if="${not #lists.isEmpty(comment.replies)}" class="list-unstyled mt-2">

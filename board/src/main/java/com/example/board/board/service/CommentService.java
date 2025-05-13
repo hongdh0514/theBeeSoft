@@ -36,6 +36,7 @@ public class CommentService {
 
     @Transactional(readOnly = true)
     public List<Comment> getCommentByBoardId(Long boardId) {
+
         // 1. 게시글에 속한 모든 댓글 가져오기
         List<Comment> allComments = commentRepository.findAllByBoardIdWithHierarchy(boardId);
 

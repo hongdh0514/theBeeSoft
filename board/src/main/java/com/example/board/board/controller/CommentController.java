@@ -68,8 +68,9 @@ public class CommentController {
         comment.setContent(commentDto.getContent());
         comment.setWriter(commentDto.getWriter());
 
+//        부모 댓글이 존재하는 댓글
         if (commentDto.getParentId() != null) {
-//            부모 댓글 check
+//            해당 parent id를 id로 가진 댓글이 존재하는지 체크
             Optional<Comment> parentCommentOptional = commentService.findById(commentDto.getParentId());
             if (parentCommentOptional.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("no_parent_comment_found");
@@ -77,18 +78,21 @@ public class CommentController {
             comment.setParentComment(parentCommentOptional.get());
         }
 
-//        댓글 저장
+//        db에 저장하여 savedComment 객체 생성
         Comment savedComment = commentService.save(comment);
 
+//        저장된 객체의 값을 다시 꺼내서 responseDto 객체 생성
         CommentResponseDTO responseDto = new CommentResponseDTO(
                 savedComment.getId(),
                 savedComment.getContent(),
                 savedComment.getWriter(),
                 savedComment.getCreatedAt(),
                 savedComment.getBoard().getId(),
+//                부모 댓글이 없으면 null로. 있으면 그 값으로.
                 savedComment.getParentComment() != null ? savedComment.getParentComment().getId() : null
         );
 
+//        responseDto 객체 리턴.
         return ResponseEntity.ok(responseDto);
     }
 

@@ -201,7 +201,6 @@ $(document).ready(function() {
                         boardListBox.show();
                         rowToRemove.remove();
 
-                        // let currentPage = getCurrentPage();
                         let remainingRows = $('#boardListBox table tbody tr:not([style*="display: none"])').length;
 
                         if (searchFlag) {
@@ -300,48 +299,6 @@ $(document).ready(function() {
         searchPageNum = 0;
     });
 
-    // 일반 댓글 작성
-    // $(document).on('click', '.comment_save_btn', function(e) {
-    //     e.preventDefault();
-    //
-    //     let boardId = $('#comment_board_id').val()
-    //     let contentArea = $('#comment_content')
-    //     let loginUser = $('#loginUser').data('login-id')
-    //
-    //     let content = contentArea.val();
-    //
-    //     if(content === "" || content === null || content.trim() === "") {
-    //         alert("댓글 내용 작성 후 등록해주세요;")
-    //         contentArea.focus()
-    //         return;
-    //     }
-    //
-    //     $.ajax({
-    //         url: '/board/' + boardId + '/comment/save',
-    //         type: 'POST',
-    //         data: {
-    //             boardId: boardId,
-    //             content: content,
-    //             loginUser: loginUser
-    //         },
-    //         success: function(response) {
-    //             if (response === "success") {
-    //                 // alert("댓글 작성 성공" + response);
-    //                 contentArea.val('');
-    //                 loadBoardDetail(boardId);
-    //             }
-    //             else if (response === "no_board_found") {
-    //                 alert("존재하지 않는 게시글입니다.");
-    //                 loadBoards(0); // 목록으로 이동
-    //             }
-    //         },
-    //         error: function(xhr, status, error) {
-    //             alert("댓글 작성 실패");
-    //             loadBoardDetail(boardId);
-    //         }
-    //     });
-    // });
-
     // 일반 댓글 저장
     $(document).on('click', '.comment_save_btn', function(e) {
         e.preventDefault();
@@ -370,8 +327,7 @@ $(document).ready(function() {
             }),
             success: function(newComment) {
                 if (newComment && newComment.id) {
-                    // alert("댓글 작성 성공");
-                    contentArea.val('');
+                    contentArea.val("");
 
                     // 새로 추가된 댓글을 DOM에 동적으로 추가
                     addCommentToDom(newComment, 0, null);
@@ -417,22 +373,27 @@ $(document).ready(function() {
     // 답글 버튼 클릭
     $(document).on('click', '.reply-btn', function() {
         let commentId = $(this).data('comment-id');
-        let currentIndentLevel = $(this).data('indent-level'); // 현재 댓글의 들여쓰기 레벨
+        // 부모의 indent level 가져오기.
+        let currentIndentLevel = $(this).data('indent-level');
         let replyBtnHtml = $(this);
 
         let replyFormContainer = $(this).closest('.comment-container').find('.reply-form-container').first();
         let currentBoardId = $('#comment_board_id').val();
 
-        if (replyFormContainer.children().length > 0) {
+        // 취소 상태일 때 클릭 시 버튼 text 답글로 변경 + 입력창 비우기.
+        if (replyFormContainer.children().length !== 0) {
             replyFormContainer.empty();
             replyBtnHtml.text("답글");
-        } else {
+        }
+        else {
             let nextIndentLevel = currentIndentLevel + 1;
 
+            // level 1 까지만 답글 버튼 작동.
             if (nextIndentLevel > 2) {
                 return;
             }
 
+            // 입력창 html 생성
             let replyFormHtml = `
                 <div class="reply-write-form mt-3 mb-3 ${'indent-level-' + nextIndentLevel}">
                     <input type="hidden" class="reply_board_id" name="boardId" value="${currentBoardId}">
@@ -459,11 +420,9 @@ $(document).ready(function() {
         let contentArea = $replyForm.find('.reply_content');
         let loginUser = $('#loginUser').data('login-id');
 
-        let commentCount = $('#commentCount');
-
         let content = contentArea.val();
 
-        if (content.trim() === '') {
+        if (content === "" || content === null || content.trim() === "") {
             alert('답글 내용을 입력해주세요.');
             contentArea.val("");
             contentArea.focus();
@@ -471,7 +430,7 @@ $(document).ready(function() {
         }
 
         $.ajax({
-            url: '/board/' + boardId + '/comment/save', // 답글 저장 API 엔드포인트 (일반 댓글과 동일할 수 있음)
+            url: '/board/' + boardId + '/comment/save',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({
@@ -482,7 +441,6 @@ $(document).ready(function() {
             }),
             success: function(newReply) {
                 if (newReply && newReply.id) {
-                    // alert('답글이 성공적으로 등록되었습니다.');
                     $replyForm.remove();
 
                     $(`button.reply-btn[data-comment-id='${parentCommentId}']`).text("답글");
@@ -514,12 +472,9 @@ $(document).ready(function() {
         });
     });
 
-    // 동적으로 댓글/답글을 DOM에 추가하는 함수
-    // newComment: 서버에서 반환된 댓글 객체 (JSON)
-    // indentLevel: 추가될 댓글/답글의 들여쓰기 레벨
-    // parentCommentItem: 답글인 경우, 해당 부모 댓글의 jQuery 객체. 일반 댓글인 경우 null
     function addCommentToDom(newComment, indentLevel, $parentCommentItem) {
 
+        // 등록 날짜 포맷팅
         let createdAtString = newComment.createdAt;
         let formattedDate = '날짜 없음'; // 기본값
 
@@ -544,6 +499,8 @@ $(document).ready(function() {
         }
 
         let replyButtonHtml = '';
+
+        // 0, 1 레벨 댓글까지만 답글 버튼 생성
         if (indentLevel < 2) {
             replyButtonHtml = `
             <button type="button" class="btn btn-sm btn-outline-secondary reply-btn"
@@ -551,9 +508,7 @@ $(document).ready(function() {
         `;
         }
 
-        // 댓글/답글 HTML 요소 생성
-        // id="comment-${newComment.id}"로 되어있는데, HTML에는 id="li-comment-${comment.id}"로 되어있습니다.
-        // 일관성을 위해 li의 id도 li-comment-${newComment.id}로 변경했습니다.
+        // 새로 등록된 댓글의 html 생성. response 받은 데이터로 구성. board detail 양식에 맞춰서 생성. div:commentList > ul:list-unstyled > 안에 내용 생성.
         let newCommentHtml = `
         <li id="li-comment-${newComment.id}">
             <div id="comment-item-${newComment.id}"
@@ -569,27 +524,28 @@ $(document).ready(function() {
                             data-comment-id="${newComment.id}" data-board-id="${newComment.boardId}">삭제</button>
                 </div>
                 <div class="reply-form-container"></div>
-                <ul class="list-unstyled mt-2"></ul> </div>
+                <ul class="list-unstyled mt-2"></ul> 
+            </div>
         </li>
-    `;
+        `;
 
+        // 부모 댓글 유무 체크
         if ($parentCommentItem) {
+            // 부모 댓글 끝나는 지점 찾아서 붙이기
             let $repliesList = $parentCommentItem.find('> .list-unstyled');
-            if ($repliesList.length === 0) {
-                $repliesList = $('<ul class="list-unstyled mt-2"></ul>');
-                $parentCommentItem.append($repliesList);
-            }
             $repliesList.prepend(newCommentHtml);
         } else {
+            // 댓글 리스트에 붙이기
             $('#commentList > .list-unstyled').prepend(newCommentHtml);
             $('#commentList p.text-muted').hide();
         }
     }
 
-    // 댓글 수 업데이트를 위한 공통 함수
+    // 댓글 수 업데이트 함수
     function updateCommentCount(change) {
         let $commentCountSpan = $('#commentCount');
         let currentCount = parseInt($commentCountSpan.text()) || 0;
+        // 변화값만큼 계산하여 text.
         $commentCountSpan.text(currentCount + change);
     }
 
@@ -597,8 +553,8 @@ $(document).ready(function() {
     $(document).on('click', '.comment-actions .delete-btn', function(e) {
         e.preventDefault();
         let commentId = $(this).data('comment-id');
-        let boardId = $(this).data('board-id'); // 게시글 ID도 함께 전달
-        let $commentItemToRemove = $(this).closest('li[id^="li-comment-"]'); // 삭제할 댓글/답글의 li 요소
+        let boardId = $(this).data('board-id');
+        let $commentItemToRemove = $(this).closest('li[id^="li-comment-"]');
 
         deleteComment(boardId, commentId, $commentItemToRemove);
     });
@@ -632,7 +588,7 @@ $(document).ready(function() {
                     } else if (xhr.status === 404) {
                         alert("존재하지 않는 댓글입니다.");
                     } else if (xhr.status === 401) {
-                        alert("로그인이 필요합니다.");
+                        alert("해당 댓글 삭제 권한이 없습니다.");
                     }
                     else {
                         alert("댓글 삭제 중 오류가 발생했습니다: " + errorMessage);
