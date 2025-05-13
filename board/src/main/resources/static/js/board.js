@@ -142,6 +142,7 @@ $(document).ready(function() {
                             boardWriteBox.hide();
                             boardDetailBox.html(fragment).show();
                             if(!titleFlag) {
+                                $("#comment_content").focus();
                                 let targetPosition =  $(".comment-section").offset().top - 30;
                                 scrollToTarget(targetPosition);
                                 titleFlag = true;
@@ -300,48 +301,101 @@ $(document).ready(function() {
     });
 
     // 일반 댓글 작성
+    // $(document).on('click', '.comment_save_btn', function(e) {
+    //     e.preventDefault();
+    //
+    //     let boardId = $('#comment_board_id').val()
+    //     let contentArea = $('#comment_content')
+    //     let loginUser = $('#loginUser').data('login-id')
+    //
+    //     let content = contentArea.val();
+    //
+    //     if(content === "" || content === null || content.trim() === "") {
+    //         alert("댓글 내용 작성 후 등록해주세요;")
+    //         contentArea.focus()
+    //         return;
+    //     }
+    //
+    //     $.ajax({
+    //         url: '/board/' + boardId + '/comment/save',
+    //         type: 'POST',
+    //         data: {
+    //             boardId: boardId,
+    //             content: content,
+    //             loginUser: loginUser
+    //         },
+    //         success: function(response) {
+    //             if (response === "success") {
+    //                 // alert("댓글 작성 성공" + response);
+    //                 contentArea.val('');
+    //                 loadBoardDetail(boardId);
+    //             }
+    //             else if (response === "no_board_found") {
+    //                 alert("존재하지 않는 게시글입니다.");
+    //                 loadBoards(0); // 목록으로 이동
+    //             }
+    //         },
+    //         error: function(xhr, status, error) {
+    //             alert("댓글 작성 실패");
+    //             loadBoardDetail(boardId);
+    //         }
+    //     });
+    // });
+
+    // 일반 댓글 저장
     $(document).on('click', '.comment_save_btn', function(e) {
         e.preventDefault();
 
-        let boardId = $('#comment_board_id').val()
-        let contentArea = $('#comment_content')
-        let loginUser = $('#loginUser').data('login-id')
+        let boardId = $('#comment_board_id').val();
+        let contentArea = $('#comment_content');
+        let loginUser = $('#loginUser').data('login-id');
 
         let content = contentArea.val();
 
         if(content === "" || content === null || content.trim() === "") {
-            alert("댓글 내용 작성 후 등록해주세요;")
-            contentArea.focus()
+            alert("댓글 내용을 작성 후 등록해주세요.");
+            contentArea.val("");
+            contentArea.focus();
             return;
         }
 
         $.ajax({
             url: '/board/' + boardId + '/comment/save',
             type: 'POST',
-            data: {
+            contentType: 'application/json',
+            data: JSON.stringify({
                 boardId: boardId,
                 content: content,
-                loginUser: loginUser
-            },
-            success: function(response) {
-                if (response === "success") {
-                    // alert("댓글 작성 성공" + response);
+                writer: loginUser
+            }),
+            success: function(newComment) {
+                if (newComment && newComment.id) {
+                    // alert("댓글 작성 성공");
                     contentArea.val('');
-                    loadBoardDetail(boardId);
-                }
-                else if (response === "no_board_found") {
-                    alert("존재하지 않는 게시글입니다.");
-                    loadBoards(0); // 목록으로 이동
+
+                    // 새로 추가된 댓글을 DOM에 동적으로 추가
+                    addCommentToDom(newComment, 0, null);
+
+                    // 댓글 수 업데이트
+                    updateCommentCount(1);
+                } else {
+                    alert("댓글 작성 실패: 유효하지 않은 응답");
+                    console.error("Invalid response for comment save:", newComment);
                 }
             },
             error: function(xhr, status, error) {
-                alert("댓글 작성 실패");
-                loadBoardDetail(boardId);
+                if (xhr.status === 404) {
+                    alert("존재하지 않는 게시글입니다.");
+                    loadBoards(0);
+                } else if (xhr.status === 403) {
+                    alert("댓글 작성 권한이 없습니다.");
+                } else {
+                    alert("댓글 작성 실패: " + (xhr.responseText || error));
+                }
+                console.error("댓글 작성 AJAX 오류:", status, error, xhr.responseText);
             }
         });
-    });
-
-
+    })
 
     // 댓글 버튼 클릭하여 스크롤 이동.
     $(document).on('click', '.comment_btn', function(e) {
@@ -360,30 +414,234 @@ $(document).ready(function() {
         scrollToTarget(0)
     });
 
-//     답글
+    // 답글 버튼 클릭
     $(document).on('click', '.reply-btn', function() {
         let commentId = $(this).data('comment-id');
+        let currentIndentLevel = $(this).data('indent-level'); // 현재 댓글의 들여쓰기 레벨
         let replyBtnHtml = $(this);
-        let replyFormContainer = $(this).closest('li').find('.reply-form-container');
-        let currentBoardId = $('#comment_board_id').val();
 
+        let replyFormContainer = $(this).closest('.comment-container').find('.reply-form-container').first();
+        let currentBoardId = $('#comment_board_id').val();
 
         if (replyFormContainer.children().length > 0) {
             replyFormContainer.empty();
-            replyBtnHtml.html("답글");
+            replyBtnHtml.text("답글");
         } else {
+            let nextIndentLevel = currentIndentLevel + 1;
+
+            if (nextIndentLevel > 2) {
+                return;
+            }
+
             let replyFormHtml = `
-                    <div class="reply-write-form mt-3 mb-3" style="margin-left: 20px;">
-                        <input type="hidden" class="reply_board_id" name="boardId" value="${currentBoardId}">
-                        <input type="hidden" class="parent_comment_id" name="parentCommentId" value="${commentId}">
-                        <div class="reply_input-group input-group">
-                            <textarea class="form-control reply_content" name="content" rows="2" placeholder="답글을 입력하세요..." required></textarea>
-                            <button class="reply_save_btn btn btn-outline-success">등록</button>
-                        </div>
+                <div class="reply-write-form mt-3 mb-3 ${'indent-level-' + nextIndentLevel}">
+                    <input type="hidden" class="reply_board_id" name="boardId" value="${currentBoardId}">
+                    <input type="hidden" class="parent_comment_id" name="parentCommentId" value="${commentId}">
+                    <div class="reply_input-group input-group">
+                        <textarea class="form-control reply_content" name="content" rows="2" placeholder="답글을 입력하세요..." required></textarea>
+                        <button class="reply_save_btn btn btn-outline-success">등록</button>
                     </div>
-                `;
+                </div>
+            `;
             replyFormContainer.html(replyFormHtml);
-            replyBtnHtml.html("취소");
+            replyBtnHtml.text("취소");
+            replyFormContainer.find('.reply_content').focus();
         }
     });
+
+    // 답글 저장
+    $(document).on('click', '.reply_save_btn', function(e) {
+        e.preventDefault();
+
+        let $replyForm = $(this).closest('.reply-write-form');
+        let boardId = $replyForm.find('.reply_board_id').val();
+        let parentCommentId = $replyForm.find('.parent_comment_id').val();
+        let contentArea = $replyForm.find('.reply_content');
+        let loginUser = $('#loginUser').data('login-id');
+
+        let commentCount = $('#commentCount');
+
+        let content = contentArea.val();
+
+        if (content.trim() === '') {
+            alert('답글 내용을 입력해주세요.');
+            contentArea.val("");
+            contentArea.focus();
+            return;
+        }
+
+        $.ajax({
+            url: '/board/' + boardId + '/comment/save', // 답글 저장 API 엔드포인트 (일반 댓글과 동일할 수 있음)
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                boardId: boardId,
+                parentId: parentCommentId,
+                content: content,
+                writer: loginUser
+            }),
+            success: function(newReply) {
+                if (newReply && newReply.id) {
+                    // alert('답글이 성공적으로 등록되었습니다.');
+                    $replyForm.remove();
+
+                    $(`button.reply-btn[data-comment-id='${parentCommentId}']`).text("답글");
+
+                    // 새로 추가된 답글을 DOM에 동적으로 추가
+                    let $parentCommentItem = $(`#comment-item-${parentCommentId}`);
+                    let parentIndentLevel = $parentCommentItem.find('.reply-btn').first().data('indent-level');
+                    let nextIndentLevel = parentIndentLevel + 1;
+
+                    addCommentToDom(newReply, nextIndentLevel, $parentCommentItem);
+
+                    // 댓글 수 업데이트
+                    updateCommentCount(1);
+                } else {
+                    alert("답글 작성 실패: 유효하지 않은 응답");
+                    console.error("Invalid response for reply save:", newReply);
+                }
+            },
+            error: function(xhr, status, error) {
+                if (xhr.status === 404) {
+                    alert("존재하지 않는 게시글 또는 부모 댓글입니다.");
+                } else if (xhr.status === 403) {
+                    alert("답글 작성 권한이 없습니다.");
+                } else {
+                    alert("답글 등록에 실패했습니다: " + (xhr.responseText || error));
+                }
+                console.error('답글 등록 AJAX 오류:', status, error, xhr.responseText);
+            }
+        });
+    });
+
+    // 동적으로 댓글/답글을 DOM에 추가하는 함수
+    // newComment: 서버에서 반환된 댓글 객체 (JSON)
+    // indentLevel: 추가될 댓글/답글의 들여쓰기 레벨
+    // parentCommentItem: 답글인 경우, 해당 부모 댓글의 jQuery 객체. 일반 댓글인 경우 null
+    function addCommentToDom(newComment, indentLevel, $parentCommentItem) {
+
+        let createdAtString = newComment.createdAt;
+        let formattedDate = '날짜 없음'; // 기본값
+
+        if (createdAtString) {
+            try {
+                const date = new Date(createdAtString);
+                if (!isNaN(date.getTime())) {
+                    const year = date.getFullYear();
+                    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                    const day = date.getDate().toString().padStart(2, '0');
+                    const hours = date.getHours().toString().padStart(2, '0');
+                    const minutes = date.getMinutes().toString().padStart(2, '0');
+                    formattedDate = `${year}-${month}-${day} ${hours}:${minutes}`;
+                } else {
+                    console.warn("Invalid date string received for createdAt:", createdAtString);
+                }
+            } catch (e) {
+                console.error("Error parsing createdAt date:", e, createdAtString);
+            }
+        } else {
+            console.warn("newComment.createdAt is missing or null:", newComment);
+        }
+
+        let replyButtonHtml = '';
+        if (indentLevel < 2) {
+            replyButtonHtml = `
+            <button type="button" class="btn btn-sm btn-outline-secondary reply-btn"
+                    data-comment-id="${newComment.id}" data-indent-level="${indentLevel}">답글</button>
+        `;
+        }
+
+        // 댓글/답글 HTML 요소 생성
+        // id="comment-${newComment.id}"로 되어있는데, HTML에는 id="li-comment-${comment.id}"로 되어있습니다.
+        // 일관성을 위해 li의 id도 li-comment-${newComment.id}로 변경했습니다.
+        let newCommentHtml = `
+        <li id="li-comment-${newComment.id}">
+            <div id="comment-item-${newComment.id}"
+                 class="comment-container indent-level-${indentLevel}">
+                <p>${newComment.content}</p>
+                <div class="comment-meta">
+                    <span>${newComment.writer}</span>
+                    <span>${formattedDate}</span>
+                </div>
+                <div class="comment-actions">
+                    ${replyButtonHtml} 
+                    <button type="button" class="btn btn-sm btn-outline-danger delete-btn"
+                            data-comment-id="${newComment.id}" data-board-id="${newComment.boardId}">삭제</button>
+                </div>
+                <div class="reply-form-container"></div>
+                <ul class="list-unstyled mt-2"></ul> </div>
+        </li>
+    `;
+
+        if ($parentCommentItem) {
+            let $repliesList = $parentCommentItem.find('> .list-unstyled');
+            if ($repliesList.length === 0) {
+                $repliesList = $('<ul class="list-unstyled mt-2"></ul>');
+                $parentCommentItem.append($repliesList);
+            }
+            $repliesList.prepend(newCommentHtml);
+        } else {
+            $('#commentList > .list-unstyled').prepend(newCommentHtml);
+            $('#commentList p.text-muted').hide();
+        }
+    }
+
+    // 댓글 수 업데이트를 위한 공통 함수
+    function updateCommentCount(change) {
+        let $commentCountSpan = $('#commentCount');
+        let currentCount = parseInt($commentCountSpan.text()) || 0;
+        $commentCountSpan.text(currentCount + change);
+    }
+
+//     댓글 삭제 기능
+    $(document).on('click', '.comment-actions .delete-btn', function(e) {
+        e.preventDefault();
+        let commentId = $(this).data('comment-id');
+        let boardId = $(this).data('board-id'); // 게시글 ID도 함께 전달
+        let $commentItemToRemove = $(this).closest('li[id^="li-comment-"]'); // 삭제할 댓글/답글의 li 요소
+
+        deleteComment(boardId, commentId, $commentItemToRemove);
+    });
+
+    function deleteComment(boardId, commentId, $commentItemToRemove) {
+        if (confirm("댓글(ID: " + commentId + ")을 삭제하시겠습니까? 이 댓글의 모든 답글도 함께 삭제됩니다.")) {
+            $.ajax({
+                type: "DELETE",
+                url: `/board/${boardId}/comment/${commentId}`,
+                success: function(response) {
+                    if (typeof response === 'number' && response > 0) {
+                        alert("댓글이 성공적으로 삭제되었습니다.");
+
+                        $commentItemToRemove.remove();
+
+                        // 댓글 수 업데이트
+                        updateCommentCount(-response);
+
+                        if ($('#commentList > .list-unstyled').children().length === 0) {
+                            $('#commentList p.text-muted').show();
+                        }
+                    } else {
+                        alert("댓글 삭제 실패: " + response);
+                        console.error("댓글 삭제 실패 응답:", response);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    let errorMessage = xhr.responseText || "알 수 없는 오류가 발생했습니다.";
+                    if (xhr.status === 403) {
+                        alert("댓글 삭제 권한이 없습니다.");
+                    } else if (xhr.status === 404) {
+                        alert("존재하지 않는 댓글입니다.");
+                    } else if (xhr.status === 401) {
+                        alert("로그인이 필요합니다.");
+                    }
+                    else {
+                        alert("댓글 삭제 중 오류가 발생했습니다: " + errorMessage);
+                    }
+                    console.error("댓글 삭제 AJAX 오류:", status, error, xhr.responseText);
+                }
+            });
+        } else {
+            alert("삭제 작업을 취소하였습니다.");
+        }
+    }
 });

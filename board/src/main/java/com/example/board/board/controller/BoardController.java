@@ -32,12 +32,10 @@ public class BoardController {
     // 게시글 삭제
     @DeleteMapping("/{id}")
     public String deleteBoard(@PathVariable Long id, HttpSession session) {
-
-        System.out.println("[Controller] api test");
-
         User loginUser = (User) session.getAttribute("loginUser");
+
         String result = boardService.checkBoard(id, loginUser);
-        System.out.println("[Controller] check board test");
+
         if(result.equals("success")) {
             boardService.deleteById(id);
         }

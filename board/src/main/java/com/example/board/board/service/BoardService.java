@@ -48,8 +48,6 @@ public class BoardService {
 
     @Transactional
     public void deleteById(Long id) {
-//        댓글 조회 후 있으면 삭제를 해야하나
-        commentRepository.deleteByBoardId(id);
         boardRepository.deleteById(id);
     }
 

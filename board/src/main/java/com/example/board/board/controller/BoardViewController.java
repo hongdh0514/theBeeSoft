@@ -95,13 +95,17 @@ public class BoardViewController {
     @GetMapping("/{id}/fragment")
     public String getBoardDetail(@PathVariable Long id, Model model) {
         Optional<Board> boardOptional = boardService.findById(id);
-        boardOptional.ifPresent(boardDetail -> model.addAttribute("boardDetail", boardDetail));
 
-        List<Comment> comments = commentService.findByBoardId(id);
+        if (boardOptional.isPresent()) {
+            Board boardDetail = boardOptional.get();
+            model.addAttribute("boardDetail", boardDetail);
 
-        System.out.println(comments.size());
-        model.addAttribute("comments", comments);
+            List<Comment> comments = commentService.getCommentByBoardId(id);
+            model.addAttribute("comments", comments);
 
+            long totalCommentsCount = commentService.getTotalCommentCount(id);
+            model.addAttribute("totalCommentsCount", totalCommentsCount);
+        }
         return "/board/boardDetail :: boardDetailBox";
     }
 

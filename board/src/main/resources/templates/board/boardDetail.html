@@ -20,8 +20,7 @@
         <a class="btn btn-success comment_btn">댓글</a>
         <hr>
         <div class="comment-section">
-            <h4>댓글 (<span id="commentCount" th:text="${#lists.size(comments)}">0</span>)</h4>
-
+            <h4>댓글 (<span id="commentCount" th:text="${totalCommentsCount}">0</span>)</h4>
             <div class="comment-write-form mb-3">
                 <input id="comment_board_id" type="hidden" name="boardId" th:value="${boardDetail.id}">
                 <div class="comment_input-group input-group">
@@ -31,47 +30,40 @@
             </div>
 
             <div id="commentList">
-                <ul th:if="${not #lists.isEmpty(comments)}">
-                    <li th:each="comment : ${comments}" th:id="${'comment-' + comment.id}">
-                        <p th:text="${comment.content}"></p>
-                        <div class="comment-meta">
-                            <span th:text="${comment.writer}"></span>
-                            <span th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
-                        </div>
-                        <div class="comment-actions">
-                            <button type="button" class="btn btn-sm btn-outline-secondary reply-btn" th:data-comment-id="${comment.id}">답글</button>
-                            <button type="button" class="btn btn-sm btn-outline-danger delete-btn">삭제</button>
-                        </div>
-                        <div class="reply-form-container"></div>
-                    </li>
+                <ul class="list-unstyled"> <li th:each="comment : ${comments}" th:id="${'li-comment-' + comment.id}">
+                    <div th:replace="~{::comment-item(${comment}, 0)}"></div>
+                </li>
                 </ul>
                 <p th:if="${#lists.isEmpty(comments)}" class="text-muted">아직 댓글이 없습니다.</p>
             </div>
         </div>
-
     </div>
-<!--        <div class="comment-section mt-4">-->
-<!--            <h4>댓글 (<span id="commentCount" th:text="${#lists.size(comments)}">0</span>)</h4>-->
 
-<!--            <div class="comment-write-form mb-3">-->
-<!--                    <input id="comment_board_id" type="hidden" name="boardId" th:value="${boardDetail.id}">-->
-<!--                    <div class="comment_input-group input-group">-->
-<!--                        <textarea id="comment_content" class="form-control" name="content" rows="3" placeholder="댓글을 입력하세요..." required></textarea>-->
-<!--                        <button class="comment_save_btn btn btn-outline-primary">등록</button>-->
-<!--                    </div>-->
-<!--            </div>-->
+    <div th:fragment="comment-item(comment, indentLevel)">
+        <div th:id="${'comment-item-' + comment.id}"
+             th:class="${'comment-container indent-level-' + indentLevel}">
+            <p th:text="${comment.content}"></p>
+            <div class="comment-meta">
+                <span th:text="${comment.writer}"></span>
+                <span th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+            </div>
+            <div class="comment-actions">
+                <th:block th:if="${indentLevel < 2}">
+                    <button type="button" class="btn btn-sm btn-outline-secondary reply-btn"
+                            th:data-comment-id="${comment.id}" th:data-indent-level="${indentLevel}">답글</button>
+                </th:block>
+                <button type="button" class="btn btn-sm btn-outline-danger delete-btn"
+                        th:data-comment-id="${comment.id}" th:data-board-id="${boardDetail.id}">삭제</button>
+            </div>
+            <div class="reply-form-container"></div>
 
-<!--            <div id="commentList">-->
-<!--                <ul th:if="${not #lists.isEmpty(comments)}">-->
-<!--                    <li th:each="comment : ${comments}">-->
-<!--                        <p th:text="${comment.content}"></p>-->
-<!--                    </li>-->
-<!--                </ul>-->
-<!--                <p th:if="${#lists.isEmpty(comments)}">아직 댓글이 없습니다.</p>-->
-<!--            </div>-->
-<!--        </div>-->
-
-<!--    </div>-->
+            <ul th:if="${not #lists.isEmpty(comment.replies)}" class="list-unstyled mt-2">
+                <li th:each="reply : ${comment.replies}" th:id="${'li-comment-' + reply.id}">
+                    <div th:replace="~{::comment-item(${reply}, ${indentLevel + 1})}"></div>
+                </li>
+            </ul>
+        </div>
+    </div>
 </th:block>
 </body>
 </html>
