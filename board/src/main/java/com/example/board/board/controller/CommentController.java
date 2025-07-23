@@ -98,6 +98,7 @@ public class CommentController {
 
     @DeleteMapping("/{commentId}")
     public ResponseEntity<?> deleteComment(@PathVariable Long boardId, @PathVariable Long commentId,  HttpSession session) {
+
         Optional<Comment> commentOptional = commentService.findById(commentId);
         if (commentOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("no_comment_found");

@@ -86,7 +86,7 @@ public class CommentService {
 
 //    댓글 카운트
     public long getTotalCommentCount(Long boardId) {
-        return commentRepository.countByBoardId(boardId); // CommentRepository에 이 메서드를 추가해야 합니다.
+        return commentRepository.countByBoardId(boardId);
     }
 
     public int deleteComment(Long commentId) {

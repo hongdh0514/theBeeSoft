@@ -334,6 +334,8 @@ $(document).ready(function() {
 
                     // 댓글 수 업데이트
                     updateCommentCount(1);
+
+                    alert("댓글 작성 완료")
                 } else {
                     alert("댓글 작성 실패: 유효하지 않은 응답");
                     console.error("Invalid response for comment save:", newComment);
@@ -454,6 +456,8 @@ $(document).ready(function() {
 
                     // 댓글 수 업데이트
                     updateCommentCount(1);
+
+                    alert("댓글 작성 완료")
                 } else {
                     alert("답글 작성 실패: 유효하지 않은 응답");
                     console.error("Invalid response for reply save:", newReply);
@@ -473,6 +477,7 @@ $(document).ready(function() {
     });
 
     function addCommentToDom(newComment, indentLevel, $parentCommentItem) {
+        alert("test")
 
         // 등록 날짜 포맷팅
         let createdAtString = newComment.createdAt;
@@ -584,11 +589,11 @@ $(document).ready(function() {
                 error: function(xhr, status, error) {
                     let errorMessage = xhr.responseText || "알 수 없는 오류가 발생했습니다.";
                     if (xhr.status === 403) {
-                        alert("댓글 삭제 권한이 없습니다.");
+                        alert("댓글 삭제 권한이 없습니다. 403");
                     } else if (xhr.status === 404) {
                         alert("존재하지 않는 댓글입니다.");
                     } else if (xhr.status === 401) {
-                        alert("해당 댓글 삭제 권한이 없습니다.");
+                        alert("해당 댓글 삭제 권한이 없습니다. 401");
                     }
                     else {
                         alert("댓글 삭제 중 오류가 발생했습니다: " + errorMessage);
